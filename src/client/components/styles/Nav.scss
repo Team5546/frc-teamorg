@@ -1,0 +1,33 @@
+@import "../../utilities/variables";
+
+.nav {
+  padding: 10px;
+  background-color: $nav-background-color;
+  color: $nav-text-color;
+
+  i {
+    color: inherit !important;
+  }
+
+  button[class^="btn-outline-"],
+  button[class*=" btn-outline-"],
+  button[class^="btn-outline-"]:focus,
+  button[class*=" btn-outline-"]:focus {
+    color: $nav-text-color !important;
+    border-color: $nav-text-color !important;
+    box-shadow: none;
+  }
+
+  button[class^="btn-outline-"]:hover,
+  button[class*=" btn-outline-"]:hover {
+    color: $nav-background-color !important;
+    background-color: $nav-text-color !important;
+  }
+
+  .form-inline {
+    input,
+    button {
+      margin: 2px;
+    }
+  }
+}

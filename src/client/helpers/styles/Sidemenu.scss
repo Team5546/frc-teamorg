@@ -1,0 +1,9 @@
+@import "../../utilities/variables";
+
+.sidemenu {
+  border-left: 1px solid $primary-color;
+
+  li .btn:hover {
+    text-decoration: none;
+  }
+}

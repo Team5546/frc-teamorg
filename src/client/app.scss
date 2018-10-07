@@ -1,0 +1,65 @@
+@import "utilities/variables";
+
+* {
+  -webkit-font-smoothing: antialiased;
+}
+
+body,
+.table {
+  background-color: $background-color !important;
+  color: $primary-color !important;
+}
+
+.btn,
+.btn-link {
+  color: $primary-color !important;
+}
+
+button[class^="btn-outline-"],
+button[class*=" btn-outline-"],
+button[class^="btn-outline-"]:focus,
+button[class*=" btn-outline-"]:focus {
+  color: $primary-color !important;
+  border-color: $primary-color !important;
+  box-shadow: none;
+}
+
+button[class^="btn-outline-"]:hover,
+button[class*=" btn-outline-"]:hover {
+  color: white !important;
+  background-color: $primary-color !important;
+}
+
+.form-control {
+  background-image: none !important;
+  background-color: transparent !important;
+  color: $primary-color;
+  border-color: $primary-color;
+}
+.form-control:focus {
+  color: white;
+}
+
+.form-control:disabled,
+.form-control[readonly] {
+  background-color: $primary-color !important;
+  color: black;
+  opacity: 0.5;
+}
+
+.form-control-nav {
+  background-image: none !important;
+  background-color: transparent !important;
+  color: $nav-text-color;
+  border-color: $nav-text-color;
+}
+.form-control-nav:focus {
+  color: white;
+}
+
+.form-control-nav:disabled,
+.form-control-nav[readonly] {
+  background-color: $nav-text-color !important;
+  color: black;
+  opacity: 0.5;
+}

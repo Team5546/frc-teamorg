@@ -1,0 +1,20 @@
+.users-table {
+  background-color: black;
+  tr,
+  th,
+  td {
+    background-color: inherit !important;
+  }
+}
+
+.btn-group.full-width {
+  display: flex;
+}
+
+.full-width .btn {
+  flex: 1;
+}
+
+.inactive {
+  color: lightcoral !important;
+}
