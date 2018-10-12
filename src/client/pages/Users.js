@@ -43,7 +43,10 @@ export default class Users extends Component {
     });
     if (event.target.id === 'username') {
       axios
-        .put('/api/v1/checkUsername', { username: event.target.value, id: selectedUser._id })
+        .put('/api/v1/accounts/checkUsername', {
+          username: event.target.value,
+          id: selectedUser._id
+        })
         .then(
           () => {
             this.setState({ duplicateUsername: false });

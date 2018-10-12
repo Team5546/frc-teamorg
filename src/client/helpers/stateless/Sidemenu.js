@@ -13,10 +13,10 @@ const Sidemenu = ({
             <li key={link.pageName}>
               <button
                 type="button"
-                className="btn btn-link btn-block"
+                className="btn btn-block btn-link"
                 onClick={() => setPage(link.pageName, {}, true)}
               >
-                {link.pageName}
+                {link.displayName || link.pageName}
               </button>
             </li>
           );
@@ -25,7 +25,7 @@ const Sidemenu = ({
       })}
       <li>
         <button type="button" className="btn btn-link btn-block" onClick={logout}>
-          signout
+          Signout
         </button>
       </li>
     </ul>

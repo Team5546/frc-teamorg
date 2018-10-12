@@ -13,6 +13,24 @@ body,
 .btn,
 .btn-link {
   color: $primary-color !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+
+button[class^="btn-"]:not(.btn-link),
+button[class*=" btn-"]:not(.btn-link),
+button[class^="btn-"]:not(.btn-link):focus,
+button[class*=" btn-"]:not(.btn-link):focus {
+  color: $background-color !important;
+  background-color: $primary-color !important;
+  border-color: $primary-color !important;
+}
+
+button[class^="btn-"]:not(.btn-block):hover,
+button[class*=" btn-"]:not(.btn-block):hover {
+  color: $background-color !important;
+  background-color: darken($primary-color, 10%) !important;
+  border-color: darken($primary-color, 10%) !important;
 }
 
 button[class^="btn-outline-"],
@@ -21,6 +39,7 @@ button[class^="btn-outline-"]:focus,
 button[class*=" btn-outline-"]:focus {
   color: $primary-color !important;
   border-color: $primary-color !important;
+  background-color: transparent !important;
   box-shadow: none;
 }
 
@@ -37,7 +56,7 @@ button[class*=" btn-outline-"]:hover {
   border-color: $primary-color;
 }
 .form-control:focus {
-  color: white;
+  color: $primary-color;
 }
 
 .form-control:disabled,

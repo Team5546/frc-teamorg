@@ -1,6 +1,19 @@
+/* eslint-disable no-param-reassign */
+const express = require('express');
+const mongoose = require('mongoose');
 const randomString = require('random-base64-string');
+const db = require('./db');
 
-module.exports.findOrCreateSession = (sessionsModel, userId, callback) => {
+const sessionsRouter = express.Router();
+
+const sessionsSchema = new mongoose.Schema({
+  userId: String,
+  sessionId: String
+});
+
+const Session = db.model('Session', sessionsSchema);
+
+const findOrCreateSession = (sessionsModel, userId, callback) => {
   sessionsModel.findOne({ userId }, (err, session) => {
     const sessionId = randomString(36);
     if (!session) {
@@ -27,3 +40,19 @@ module.exports.findOrCreateSession = (sessionsModel, userId, callback) => {
     callback(sessionId);
   });
 };
+
+sessionsRouter.get('/:sessionId', (req, res) => {
+  Session.findOne({ sessionId: req.params.sessionId }, '-_id', (err, doc) => {
+    if (err || !doc) {
+      res.status(404).json({
+        errors: {
+          message: 'Session ID Not Found'
+        }
+      });
+    } else {
+      res.json(doc);
+    }
+  });
+});
+
+module.exports = { sessionsRouter, Session, findOrCreateSession };

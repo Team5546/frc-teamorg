@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import './styles/AdminToolbar.scss';
 
 const AdminToolbar = ({ setPage }) => (
-  <div className="container-fluid">
+  <div className="container-fluid pb-3 mb-3 admin-toolbar">
     <div className="row mt-3">
-      <div className="col">
+      <div className="col-auto">
         <button
           type="button"
           className="btn btn-outline-light"
@@ -13,8 +14,16 @@ const AdminToolbar = ({ setPage }) => (
           Add User
         </button>
       </div>
+      <div className="col-auto">
+        <button
+          type="button"
+          className="btn btn-outline-light"
+          onClick={() => setPage('interestForm')}
+        >
+          InterestForm
+        </button>
+      </div>
     </div>
-    <hr />
   </div>
 );
 

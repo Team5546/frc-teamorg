@@ -7,12 +7,14 @@ import Home from './pages/Home';
 import Landing from './pages/Landing';
 import Users from './pages/Users';
 import Dashboard from './pages/Dashboard';
+import RoboticsInterestForm from './pages/RoboticsInterestForm';
 // Components
 import Nav from './components/Nav';
 import Sidemenu from './helpers/stateless/Sidemenu';
 import AdminToolbar from './components/AdminToolbar';
 
 import { UserContext, defaultUser } from './UserContext';
+import AlertBox from './helpers/stateless/AlertBox';
 
 export default class App extends Component {
   constructor() {
@@ -26,10 +28,15 @@ export default class App extends Component {
 
     const { sessionId } = this.state;
     if (sessionId) {
-      axios.get(`/api/v1/sessions/${sessionId}`).then((response) => {
-        this.setUser(response.data.userId);
-        this.setPage('home');
-      });
+      axios.get(`/api/v1/sessions/${sessionId}`).then(
+        (response) => {
+          this.setUser(response.data.userId);
+          this.setPage('home');
+        },
+        () => {
+          this.setErrorMessage('An unexpected error has occured. You have been logged out.');
+        }
+      );
     }
 
     this.login = this.login.bind(this);
@@ -57,11 +64,15 @@ export default class App extends Component {
     if (toggleSidemenu) this.toggleSideMenu();
   }
 
+  setErrorMessage(message) {
+    this.setState({ errors: { message } });
+  }
+
   login(event, state) {
     this.setState({ errors: undefined });
     event.preventDefault();
     axios
-      .post('/api/v1/login', {
+      .post('/api/v1/accounts/login', {
         username: state.username,
         password: state.password
       })
@@ -72,6 +83,7 @@ export default class App extends Component {
           this.setPage('home');
         },
         (err) => {
+          this.setState({ errors: { message: 'An unexpected error occured' } });
           this.setState({ errors: { ...err.response.data.errors } });
         }
       );
@@ -81,7 +93,7 @@ export default class App extends Component {
     this.setState({ errors: undefined });
     event.preventDefault();
     axios
-      .post('/api/v1/signup', {
+      .post('/api/v1/accounts/signup', {
         username: state.username,
         password: state.password,
         firstName: state.firstName,
@@ -140,6 +152,9 @@ export default class App extends Component {
       case 'dashboard':
         visiblePage = <Dashboard {...currentPage.props} />;
         break;
+      case 'interestForm':
+        visiblePage = <RoboticsInterestForm {...currentPage.props} />;
+        break;
       default:
         visiblePage = <Landing teamNum={5546} {...currentPage.props} />;
     }
@@ -150,23 +165,13 @@ export default class App extends Component {
             <div className={`col ${currentPage === '' ? 'p-0' : ''}`}>
               <Nav login={this.login} signup={this.signup} toggleSideMenu={this.toggleSideMenu} />
               {this.isAdmin() && <AdminToolbar setPage={this.setPage} />}
-              {errors && (
-                <div className="alert alert-warning alert-dismissible fade show mb-0" role="alert">
-                  {errors.message}
-                  {errors.username}
-                  {errors.password}
-                  <button
-                    type="button"
-                    className="close"
-                    aria-label="Close"
-                    onClick={() => this.setState({ errors: undefined })}
-                  >
-                    <span aria-hidden="true">
-&times;
-                    </span>
-                  </button>
-                </div>
-              )}
+              <AlertBox
+                condition={errors}
+                message={`${(errors && errors.message) || ''}\n${(errors && errors.username)
+                  || ''}\n${(errors && errors.password) || ''}`}
+                close={() => this.setState({ errors: undefined })}
+                type="danger"
+              />
               {visiblePage}
             </div>
             {showSideMenu ? (
@@ -177,14 +182,22 @@ export default class App extends Component {
                 links={[
                   {
                     pageName: 'home',
+                    displayName: 'Home',
                     requiresAdmin: false
                   },
                   {
                     pageName: 'users',
+                    displayName: 'Users',
                     requiresAdmin: true
                   },
                   {
                     pageName: 'dashboard',
+                    displayName: 'Dashboard',
+                    requiresAdmin: true
+                  },
+                  {
+                    pageName: 'interestForm',
+                    displayName: 'Interest Form',
                     requiresAdmin: true
                   }
                 ]}
