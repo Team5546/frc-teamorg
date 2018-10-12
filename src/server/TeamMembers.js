@@ -80,14 +80,16 @@ teamMembersRouter.post('/', (req, res) => {
     if (doc) {
       res
         .status(422)
-        .json({ errors: { message: 'Team Member already exists. Please contact support.' } });
+        .json({
+          errors: { code: 101, message: 'Team Member already exists. Please contact support.' }
+        });
     } else {
       TeamMember.create(req.body).then(
         () => {
           res.status(201);
         },
-        (err) => {
-          res.status(422).json(err);
+        (createErr) => {
+          res.status(422).json(createErr);
         }
       );
     }

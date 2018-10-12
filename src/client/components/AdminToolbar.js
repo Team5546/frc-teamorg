@@ -20,7 +20,7 @@ const AdminToolbar = ({ setPage }) => (
           className="btn btn-outline-light"
           onClick={() => setPage('interestForm')}
         >
-          InterestForm
+          Interest Form
         </button>
       </div>
     </div>

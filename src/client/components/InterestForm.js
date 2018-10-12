@@ -154,14 +154,14 @@ Phone Number
           className={`form-control${errors.parentPhone ? ' is-invalid' : ''}`}
           value={teamMember.parentPhone || ''}
           onChange={handleChange}
-          placeholder="(888) 888-8888"
+          placeholder="8888888888"
           pattern="\d*"
           maxLength="10"
           required
         />
         <small id="parentPhoneHelpBlock" className="form-text text-muted">
           <em>
-            {teamMember.formattedParentPhone || 'e.g. (888) 888-8888'}
+            {teamMember.formattedParentPhone || '(888) 888-8888'}
           </em>
         </small>
         <div className="invalid-feedback">

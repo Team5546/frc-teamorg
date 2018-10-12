@@ -45,7 +45,7 @@ export default class RoboticsInterestForm extends Component {
       teamMember: { ...teamMember, [event.target.id]: event.target.value }
     });
     if (event.target.id === 'email') {
-      console.log(event.target.value.indexOf('@args.us'));
+      // console.log(event.target.value.indexOf('@args.us'));
       this.setState({
         errors: { ...errors, email: event.target.value.indexOf('@args.us') === -1 }
       });
@@ -70,9 +70,9 @@ export default class RoboticsInterestForm extends Component {
   submitForm(event) {
     event.preventDefault();
     const { teamMember, errors } = this.state;
-    console.log(teamMember);
+    // console.log(teamMember);
     axios.post('/api/v1/teamMembers', teamMember).then(
-      (response) => {
+      () => {
         console.log('added team member');
       },
       (err) => {
@@ -85,19 +85,28 @@ export default class RoboticsInterestForm extends Component {
     const { teamMember, errors } = this.state;
     return (
       <Page>
-        <AlertBox
-          condition={errors.message}
-          message={errors.message}
-          close={() => this.setState({ errors: { ...errors, message: undefined } })}
-          type="danger"
-        />
-        <br />
-        <InterestForm
-          submitForm={this.submitForm}
-          teamMember={teamMember}
-          handleChange={this.handleChange}
-          errors={errors}
-        />
+        {errors.code === 101 ? (
+          <h3 className="w-75 mx-auto text-center">
+            You seem to have already submitted this form. If this is a mistake, please contact
+            support or retry the form.
+          </h3>
+        ) : (
+          <React.Fragment>
+            <AlertBox
+              condition={errors.message}
+              message={errors.message}
+              close={() => this.setState({ errors: { ...errors, message: undefined } })}
+              type="danger"
+            />
+            <br />
+            <InterestForm
+              submitForm={this.submitForm}
+              teamMember={teamMember}
+              handleChange={this.handleChange}
+              errors={errors}
+            />
+          </React.Fragment>
+        )}
       </Page>
     );
   }

@@ -15,6 +15,7 @@ import AdminToolbar from './components/AdminToolbar';
 
 import { UserContext, defaultUser } from './UserContext';
 import AlertBox from './helpers/stateless/AlertBox';
+import TeamMembers from './pages/TeamMembers';
 
 export default class App extends Component {
   constructor() {
@@ -22,7 +23,8 @@ export default class App extends Component {
 
     this.state = {
       sessionId: cookie.load('sessionId'),
-      currentPage: '',
+      currentPage: {},
+      prevPages: [],
       userContext: defaultUser
     };
 
@@ -59,8 +61,10 @@ export default class App extends Component {
     });
   }
 
-  setPage(page, props, toggleSidemenu) {
-    this.setState({ currentPage: { name: page, props } });
+  setPage(page, props, toggleSidemenu, goingBack) {
+    const { currentPage, prevPages } = this.state;
+    if (!goingBack) prevPages.push(currentPage);
+    this.setState({ prevPages, currentPage: { name: page, props } });
     if (toggleSidemenu) this.toggleSideMenu();
   }
 
@@ -139,7 +143,7 @@ export default class App extends Component {
 
   render() {
     const {
-      user, showSideMenu, currentPage, userContext, errors
+      user, showSideMenu, currentPage, userContext, errors, prevPages
     } = this.state;
     let visiblePage = null;
     switch (currentPage.name) {
@@ -155,16 +159,43 @@ export default class App extends Component {
       case 'interestForm':
         visiblePage = <RoboticsInterestForm {...currentPage.props} />;
         break;
+      case 'teamMembers':
+        visiblePage = <TeamMembers {...currentPage.props} />;
+        break;
       default:
-        visiblePage = <Landing teamNum={5546} {...currentPage.props} />;
+        visiblePage = <Landing teamNum={5546} setPage={this.setPage} {...currentPage.props} />;
     }
     return (
       <UserContext.Provider value={userContext}>
         <div className="container-fluid">
           <div className="row">
-            <div className={`col ${currentPage === '' ? 'p-0' : ''}`}>
+            <div className={`col${!currentPage.name || currentPage.name === '' ? ' p-0' : ''}`}>
               <Nav login={this.login} signup={this.signup} toggleSideMenu={this.toggleSideMenu} />
               {this.isAdmin() && <AdminToolbar setPage={this.setPage} />}
+              {currentPage.name
+                && currentPage.name !== 'landing'
+                && currentPage.name !== 'home' && (
+                  <React.Fragment>
+                    <div className="container-fluid my-2">
+                      <div className="row">
+                        <div className="col-auto">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const tempPrevPages = prevPages;
+                              const lastPage = tempPrevPages.pop();
+                              this.setState({ prevPages: tempPrevPages });
+                              this.setPage(lastPage.name, lastPage.props, undefined, true);
+                            }}
+                            className="btn btn-outline-primary"
+                          >
+                            <i className="fa fa-chevron-circle-left" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </React.Fragment>
+              )}
               <AlertBox
                 condition={errors}
                 message={`${(errors && errors.message) || ''}\n${(errors && errors.username)
@@ -198,6 +229,11 @@ export default class App extends Component {
                   {
                     pageName: 'interestForm',
                     displayName: 'Interest Form',
+                    requiresAdmin: true
+                  },
+                  {
+                    pageName: 'teamMembers',
+                    displayName: 'Team Members',
                     requiresAdmin: true
                   }
                 ]}

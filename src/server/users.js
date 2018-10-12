@@ -42,7 +42,8 @@ const userSchema = new mongoose.Schema({
     type: Date
   },
   lastModified: Date,
-  modifiedBy: String
+  modifiedBy: String,
+  teamMemberId: mongoose.Schema.Types.ObjectId
 });
 
 const User = db.model('User', userSchema, 'users');
