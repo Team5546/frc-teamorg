@@ -8,6 +8,7 @@ import Landing from './pages/Landing';
 import Users from './pages/Users';
 import Dashboard from './pages/Dashboard';
 import RoboticsInterestForm from './pages/RoboticsInterestForm';
+import Subteams from './pages/Subteams';
 // Components
 import Nav from './components/Nav';
 import Sidemenu from './helpers/stateless/Sidemenu';
@@ -16,6 +17,7 @@ import AdminToolbar from './components/AdminToolbar';
 import { UserContext, defaultUser } from './UserContext';
 import AlertBox from './helpers/stateless/AlertBox';
 import TeamMembers from './pages/TeamMembers';
+import NavContext from './NavContext';
 
 export default class App extends Component {
   constructor() {
@@ -23,9 +25,13 @@ export default class App extends Component {
 
     this.state = {
       sessionId: cookie.load('sessionId'),
-      currentPage: {},
       prevPages: [],
-      userContext: defaultUser
+      userContext: defaultUser,
+      navContext: {
+        page: 'landing',
+        setPage: this.setPage,
+        props: {}
+      }
     };
 
     const { sessionId } = this.state;
@@ -62,9 +68,25 @@ export default class App extends Component {
   }
 
   setPage(page, props, toggleSidemenu, goingBack) {
-    const { currentPage, prevPages } = this.state;
-    if (!goingBack) prevPages.push(currentPage);
-    this.setState({ prevPages, currentPage: { name: page, props } });
+    const { prevPages, navContext } = this.state;
+    let tempPrevPages = prevPages;
+    if (
+      prevPages.length === 0
+      || (!goingBack
+        && navContext.page !== prevPages[prevPages.length - 1].name
+        && page !== navContext.page)
+    ) {
+      tempPrevPages.push(Object.keys(navContext).length === 0 ? { page, props } : navContext);
+    }
+    if (page === 'home') tempPrevPages = [];
+    this.setState({
+      prevPages: tempPrevPages,
+      navContext: {
+        page,
+        props,
+        setPage: this.setPage
+      }
+    });
     if (toggleSidemenu) this.toggleSideMenu();
   }
 
@@ -108,7 +130,7 @@ export default class App extends Component {
         (response) => {
           cookie.save('sessionId', response.data.sessionId, { path: '/' });
           this.setUser(response.data.userId);
-          this.setState({ currentPage: { name: 'home', props: {} } });
+          this.setPage('home');
           this.forceUpdate();
         },
         (err) => {
@@ -143,106 +165,122 @@ export default class App extends Component {
 
   render() {
     const {
-      user, showSideMenu, currentPage, userContext, errors, prevPages
+      user, showSideMenu, navContext, userContext, errors, prevPages
     } = this.state;
     let visiblePage = null;
-    switch (currentPage.name) {
+    switch (navContext.page) {
       case 'users':
-        visiblePage = <Users user={user} {...currentPage.props} />;
+        visiblePage = <Users user={user} {...navContext.props} />;
         break;
       case 'home':
-        visiblePage = <Home {...currentPage.props} />;
+        visiblePage = <Home {...navContext.props} />;
         break;
       case 'dashboard':
-        visiblePage = <Dashboard {...currentPage.props} />;
+        visiblePage = <Dashboard {...navContext.props} />;
         break;
       case 'interestForm':
-        visiblePage = <RoboticsInterestForm {...currentPage.props} />;
+        visiblePage = <RoboticsInterestForm {...navContext.props} />;
         break;
       case 'teamMembers':
-        visiblePage = <TeamMembers {...currentPage.props} />;
+        visiblePage = <TeamMembers {...navContext.props} />;
+        break;
+      case 'subTeams':
+        visiblePage = <Subteams {...navContext.props} />;
         break;
       default:
-        visiblePage = <Landing teamNum={5546} setPage={this.setPage} {...currentPage.props} />;
+        visiblePage = <Landing teamNum={5546} setPage={this.setPage} {...navContext.props} />;
     }
     return (
       <UserContext.Provider value={userContext}>
-        <div className="container-fluid">
-          <div className="row">
-            <div className={`col${!currentPage.name || currentPage.name === '' ? ' p-0' : ''}`}>
-              <Nav login={this.login} signup={this.signup} toggleSideMenu={this.toggleSideMenu} />
-              {this.isAdmin() && <AdminToolbar setPage={this.setPage} />}
-              {currentPage.name
-                && currentPage.name !== 'landing'
-                && currentPage.name !== 'home' && (
-                  <React.Fragment>
-                    <div className="container-fluid my-2">
-                      <div className="row">
-                        <div className="col-auto">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const tempPrevPages = prevPages;
-                              const lastPage = tempPrevPages.pop();
-                              this.setState({ prevPages: tempPrevPages });
-                              this.setPage(lastPage.name, lastPage.props, undefined, true);
-                            }}
-                            className="btn btn-outline-primary"
-                          >
-                            <i className="fa fa-chevron-circle-left" />
-                          </button>
+        <NavContext.Provider value={navContext}>
+          <div className="container-fluid">
+            <div className="row">
+              <div className={`col${!navContext.page || navContext.page === '' ? ' p-0' : ''}`}>
+                <Nav login={this.login} signup={this.signup} toggleSideMenu={this.toggleSideMenu} />
+                {this.isAdmin() && <AdminToolbar setPage={this.setPage} />}
+                {navContext.name
+                  && navContext.name !== 'landing'
+                  && navContext.name !== 'home' && (
+                    <React.Fragment>
+                      <div className="container-fluid my-2">
+                        <div className="row">
+                          <div className="col-auto">
+                            {prevPages.map((page, i) => (
+                              <button
+                                type="button"
+                                className="btn btn-link btn-breadcrumb"
+                                key={page.name + i}
+                                onClick={() => {
+                                  const tempPrevPages = prevPages;
+                                  tempPrevPages.splice(i + 1);
+                                  const lastPage = tempPrevPages[i];
+                                  this.setState({ prevPages: tempPrevPages });
+                                  this.setPage(lastPage.name, lastPage.props, undefined, true);
+                                }}
+                              >
+                                {page.name}
+                                {' '}
+\
+                              </button>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </React.Fragment>
+                    </React.Fragment>
+                )}
+                <AlertBox
+                  condition={errors}
+                  message={`${(errors && errors.message) || ''}\n${(errors && errors.username)
+                    || ''}\n${(errors && errors.password) || ''}`}
+                  close={() => this.setState({ errors: undefined })}
+                  type="danger"
+                />
+                {visiblePage}
+              </div>
+              {showSideMenu ? (
+                <Sidemenu
+                  logout={this.logout}
+                  isAdmin={this.isAdmin()}
+                  setPage={this.setPage}
+                  links={[
+                    {
+                      displayName: 'Home',
+                      pageName: 'home',
+                      requiresAdmin: false
+                    },
+                    {
+                      displayName: 'Users',
+                      pageName: 'users',
+                      requiresAdmin: true
+                    },
+                    {
+                      pageName: 'dashboard',
+                      displayName: 'Dashboard',
+                      requiresAdmin: true
+                    },
+                    {
+                      pageName: 'interestForm',
+                      displayName: 'Interest Form',
+                      requiresAdmin: true
+                    },
+                    {
+                      pageName: 'teamMembers',
+                      displayName: 'Team Members',
+                      requiresAdmin: true
+                    },
+                    {
+                      pageName: 'subTeams',
+                      displayName: 'Sub Teams',
+                      requiresAdmin: true
+                    }
+                  ]}
+                />
+              ) : (
+                <div />
               )}
-              <AlertBox
-                condition={errors}
-                message={`${(errors && errors.message) || ''}\n${(errors && errors.username)
-                  || ''}\n${(errors && errors.password) || ''}`}
-                close={() => this.setState({ errors: undefined })}
-                type="danger"
-              />
-              {visiblePage}
             </div>
-            {showSideMenu ? (
-              <Sidemenu
-                logout={this.logout}
-                isAdmin={this.isAdmin()}
-                setPage={this.setPage}
-                links={[
-                  {
-                    pageName: 'home',
-                    displayName: 'Home',
-                    requiresAdmin: false
-                  },
-                  {
-                    pageName: 'users',
-                    displayName: 'Users',
-                    requiresAdmin: true
-                  },
-                  {
-                    pageName: 'dashboard',
-                    displayName: 'Dashboard',
-                    requiresAdmin: true
-                  },
-                  {
-                    pageName: 'interestForm',
-                    displayName: 'Interest Form',
-                    requiresAdmin: true
-                  },
-                  {
-                    pageName: 'teamMembers',
-                    displayName: 'Team Members',
-                    requiresAdmin: true
-                  }
-                ]}
-              />
-            ) : (
-              <div />
-            )}
           </div>
-        </div>
+        </NavContext.Provider>
       </UserContext.Provider>
     );
   }

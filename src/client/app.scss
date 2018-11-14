@@ -10,11 +10,19 @@ body,
   color: $primary-color !important;
 }
 
+.btn-breadcrumb {
+  padding: 0.375rem 0.15rem !important;
+}
+
 .btn,
 .btn-link {
   color: $primary-color !important;
   background-color: transparent !important;
   border-color: transparent !important;
+}
+
+.btn-link:hover {
+  background-color: transparent !important;
 }
 
 button[class^="btn-"]:not(.btn-link),
@@ -26,8 +34,8 @@ button[class*=" btn-"]:not(.btn-link):focus {
   border-color: $primary-color !important;
 }
 
-button[class^="btn-"]:not(.btn-block):hover,
-button[class*=" btn-"]:not(.btn-block):hover {
+button[class^="btn-"]:not(.btn-block):not(.btn-link):hover,
+button[class*=" btn-"]:not(.btn-block):not(.btn-link):hover {
   color: $background-color !important;
   background-color: darken($primary-color, 10%) !important;
   border-color: darken($primary-color, 10%) !important;

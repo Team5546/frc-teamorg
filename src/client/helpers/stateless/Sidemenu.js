@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import camelcase from 'camelcase';
 import '../styles/Sidemenu.scss';
 
 const Sidemenu = ({
@@ -10,13 +11,13 @@ const Sidemenu = ({
       {links.map((link) => {
         if (!link.requiresAdmin || (link.requiresAdmin && isAdmin)) {
           return (
-            <li key={link.pageName}>
+            <li key={link.name || link.pageName}>
               <button
                 type="button"
                 className="btn btn-block btn-link"
-                onClick={() => setPage(link.pageName, {}, true)}
+                onClick={() => setPage(link.pageName || camelcase(link.name), {}, true)}
               >
-                {link.displayName || link.pageName}
+                {link.displayName || link.pageName || link.name}
               </button>
             </li>
           );

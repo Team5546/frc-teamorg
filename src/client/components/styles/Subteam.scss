@@ -1,0 +1,16 @@
+.subteam-scroll-table {
+  display: block;
+  max-height: 200px;
+  overflow-y: scroll;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+  -webkit-box-shadow: inset 0px -68px 79px -67px rgba(235, 235, 235, 0.8);
+  -moz-box-shadow: inset 0px -68px 79px -67px rgba(235, 235, 235, 0.8);
+  box-shadow: inset 0px -68px 79px -67px rgba(235, 235, 235, 0.8);
+}
+
+thead,
+tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed; /* even columns width , fix width of table too*/
+}

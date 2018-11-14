@@ -63,6 +63,26 @@ const teamMemberSchema = new mongoose.Schema({
   duesPaid: {
     type: Boolean,
     defualt: false
+  },
+  address1: {
+    type: String,
+    required: true
+  },
+  address2: {
+    type: String,
+    default: ''
+  },
+  city: {
+    type: String,
+    required: true
+  },
+  state: {
+    type: String,
+    default: 'VA'
+  },
+  zipCode: {
+    type: String,
+    required: true
   }
 });
 
@@ -75,25 +95,139 @@ teamMembersRouter.get('/', (req, res) => {
 });
 
 teamMembersRouter.post('/', (req, res) => {
-  const { firstName, lastName, email } = req.body;
-  TeamMember.findOne({ firstName, lastName, email }, (err, doc) => {
-    if (doc) {
-      res
-        .status(422)
-        .json({
+  const {
+    firstName,
+    lastName,
+    nickname,
+    grade,
+    major,
+    subTeams,
+    email,
+    parentEmail,
+    parentPhone,
+    parentFirstName,
+    parentLastName,
+    address1,
+    address2,
+    city,
+    state,
+    zipCode
+  } = req.body;
+  TeamMember.findOne(
+    {
+      firstName,
+      lastName,
+      email
+    },
+    (err, doc) => {
+      if (doc) {
+        res.status(422).json({
           errors: { code: 101, message: 'Team Member already exists. Please contact support.' }
         });
-    } else {
-      TeamMember.create(req.body).then(
-        () => {
-          res.status(201);
-        },
-        (createErr) => {
+      } else {
+        const create = TeamMember.create({
+          firstName,
+          lastName,
+          nickname,
+          grade,
+          major,
+          subTeams,
+          email,
+          parentEmail,
+          parentPhone,
+          parentFirstName,
+          parentLastName,
+          address1,
+          address2,
+          city,
+          state,
+          zipCode
+        });
+        console.log(create);
+        create.then(() => {
+          console.log('saved team member');
+          res.status(201).send();
+        });
+        create.catch((createErr) => {
           res.status(422).json(createErr);
-        }
-      );
+        });
+        // create.finally(() => console.log('finally done'));
+      }
     }
-  });
+  );
+});
+
+teamMembersRouter.put('/', (req, res) => {
+  const {
+    _id,
+    firstName,
+    lastName,
+    nickname,
+    grade,
+    major,
+    subTeams,
+    email,
+    parentEmail,
+    parentPhone,
+    parentFirstName,
+    parentLastName,
+    address1,
+    address2,
+    city,
+    state,
+    zipCode
+  } = req.body;
+  TeamMember.findOne(
+    {
+      firstName,
+      lastName,
+      email
+    },
+    (err, doc) => {
+      if (doc && doc._id.toString() !== _id) {
+        console.log(doc._id, _id);
+        res.status(422).json({
+          errors: {
+            code: 102,
+            message: 'Another team member has this name or email, please check your fields.'
+          }
+        });
+      } else {
+        TeamMember.findByIdAndUpdate(
+          doc._id,
+          {
+            $set: {
+              firstName,
+              lastName,
+              nickname,
+              grade,
+              major,
+              subTeams,
+              email,
+              parentEmail,
+              parentPhone,
+              parentFirstName,
+              parentLastName,
+              address1,
+              address2,
+              city,
+              state,
+              zipCode
+            }
+          },
+          (updateErr, upDoc) => {
+            if (updateErr) {
+              console.log(updateErr);
+              res.status(500).json({ errors: { message: 'An unknown error has occurred.' } });
+            } else {
+              res.json({ ...upDoc });
+            }
+          }
+        );
+        // create.finally(() => console.log('finally done'));
+      }
+    }
+  );
 });
 
 module.exports = { teamMembersRouter, TeamMember };

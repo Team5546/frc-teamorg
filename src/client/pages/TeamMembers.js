@@ -82,6 +82,11 @@ export default class TeamMembers extends Component {
                   {
                     name: 'Sub Teams',
                     type: 'array'
+                  },
+                  {
+                    name: '',
+                    type: 'controls',
+                    editPage: 'interestForm'
                   }
                 ]}
                 data={teamMembers}

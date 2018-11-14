@@ -191,6 +191,178 @@ Please provide a valid email.
         </div>
       </div>
     </div>
+    <h5>
+Address Info
+    </h5>
+    <hr />
+    <div className="form-row">
+      <div className="form-group col-md-6">
+        <label htmlFor="address1">
+Address
+        </label>
+        <input
+          id="address1"
+          className="form-control"
+          value={teamMember.address1 || ''}
+          onChange={handleChange}
+          placeholder="Address"
+          required
+        />
+        <small id="addressHelpBlock" className="form-text text-muted">
+          <em>
+e.g. 888 Example St.
+          </em>
+        </small>
+      </div>
+      <div className="form-group col-md-6">
+        <label htmlFor="address2">
+Address 2
+        </label>
+        <input
+          id="address2"
+          className="form-control"
+          value={teamMember.address2 || ''}
+          onChange={handleChange}
+          placeholder="Address 2"
+        />
+        <small id="address2HelpBlock" className="form-text text-muted">
+          <em>
+e.g. Suite 101, Apt. E, etc.
+          </em>
+        </small>
+      </div>
+    </div>
+    <div className="form-row">
+      <div className="form-group col-md-4">
+        <label htmlFor="city">
+City
+        </label>
+        <input
+          id="city"
+          className="form-control"
+          value={teamMember.city || ''}
+          onChange={handleChange}
+          placeholder="City"
+          required
+        />
+      </div>
+      <div className="form-group col-md-4">
+        <label htmlFor="state">
+State
+        </label>
+        <input
+          id="state"
+          className="form-control"
+          value={teamMember.state || 'VA'}
+          onChange={handleChange}
+          placeholder="State"
+          required
+          readOnly
+        />
+        <small id="address2HelpBlock" className="form-text text-muted">
+          <em>
+Only Virginia Allowed
+          </em>
+        </small>
+      </div>
+      <div className="form-group col-md-4">
+        <label htmlFor="zipCode">
+Zip Code
+        </label>
+        <input
+          id="zipCode"
+          className="form-control"
+          value={teamMember.zipCode || ''}
+          onChange={handleChange}
+          placeholder="Zip Code"
+          required
+        />
+      </div>
+    </div>
+    <h5>
+Sub Teams
+    </h5>
+    <hr />
+    <div className="form-row">
+      <div className="form-group col-md-3">
+        <div className="custom-control custom-checkbox">
+          <input
+            type="checkbox"
+            className="custom-control-input"
+            id="subTeamsBuild"
+            onChange={handleChange}
+          />
+          <label className="custom-control-label" htmlFor="subTeamsBuild">
+            Build Team
+          </label>
+        </div>
+      </div>
+      <div className="form-group col-md-3">
+        <div className="custom-control custom-checkbox">
+          <input
+            type="checkbox"
+            className="custom-control-input"
+            id="subTeamsProgramming"
+            onChange={handleChange}
+          />
+          <label className="custom-control-label" htmlFor="subTeamsProgramming">
+            Programming Team
+          </label>
+        </div>
+      </div>
+      <div className="form-group col-md-3">
+        <div className="custom-control custom-checkbox">
+          <input
+            type="checkbox"
+            className="custom-control-input"
+            id="subTeamsPR"
+            onChange={handleChange}
+          />
+          <label className="custom-control-label" htmlFor="subTeamsPR">
+            PR Team
+          </label>
+        </div>
+      </div>
+      <div className="form-group col-md-3">
+        <div className="custom-control custom-checkbox">
+          <input
+            type="checkbox"
+            className="custom-control-input"
+            id="subTeamsBusiness"
+            onChange={handleChange}
+          />
+          <label className="custom-control-label" htmlFor="subTeamsBusiness">
+            Business Team
+          </label>
+        </div>
+      </div>
+      <div className="form-group col-md-3">
+        <div className="custom-control custom-checkbox">
+          <input
+            type="checkbox"
+            className="custom-control-input"
+            id="subTeamsScouting"
+            onChange={handleChange}
+          />
+          <label className="custom-control-label" htmlFor="subTeamsScouting">
+            Scouting Team
+          </label>
+        </div>
+      </div>
+      <div className="form-group col-md-3">
+        <div className="custom-control custom-checkbox">
+          <input
+            type="checkbox"
+            className="custom-control-input"
+            id="subTeamsSafety"
+            onChange={handleChange}
+          />
+          <label className="custom-control-label" htmlFor="subTeamsSafety">
+            Safety Team
+          </label>
+        </div>
+      </div>
+    </div>
     <div className="form-group-row">
       <div className="form-group">
         <button type="submit" className="btn btn-block btn-primary">

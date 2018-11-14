@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import PropTypes from 'prop-types';
 import Page from '../components/Page';
 import InterestForm from '../components/InterestForm';
 import AlertBox from '../helpers/stateless/AlertBox';
@@ -27,12 +28,14 @@ const emailValid = (email) => {
 };
 
 export default class RoboticsInterestForm extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
+    const { teamMember } = this.props;
     this.state = {
-      teamMember: {},
-      errors: {}
+      teamMember: teamMember || {},
+      errors: {},
+      editing: props.editing || false
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -41,54 +44,83 @@ export default class RoboticsInterestForm extends Component {
 
   handleChange(event) {
     const { teamMember, errors } = this.state;
-    this.setState({
-      teamMember: { ...teamMember, [event.target.id]: event.target.value }
-    });
-    if (event.target.id === 'email') {
-      // console.log(event.target.value.indexOf('@args.us'));
+    if (!event.target.id.includes('subTeams')) {
       this.setState({
-        errors: { ...errors, email: event.target.value.indexOf('@args.us') === -1 }
+        teamMember: { ...teamMember, [event.target.id]: event.target.value }
       });
-    }
-    if (event.target.id === 'parentPhone') {
+      if (event.target.id === 'email') {
+        // console.log(event.target.value.indexOf('@args.us'));
+        this.setState({
+          errors: { ...errors, email: event.target.value.indexOf('@args.us') === -1 }
+        });
+      }
+      if (event.target.id === 'parentPhone') {
+        this.setState({
+          teamMember: {
+            ...teamMember,
+            parentPhone: `${event.target.value}`,
+            formattedParentPhone: formatPhone(event.target.value)
+          },
+          errors: { ...errors, parentPhone: event.target.value.length !== 10 }
+        });
+      }
+      if (event.target.id === 'parentEmail') {
+        this.setState({
+          errors: { ...errors, parentEmail: !emailValid(event.target.value) }
+        });
+      }
+    } else {
+      const team = event.target.id.substring('subTeams'.length).toLowerCase();
+      const subTeams = teamMember.subTeams || [];
+      console.log(event.target.checked);
+      if (event.target.checked) {
+        subTeams.push(team);
+      } else {
+        subTeams.splice(subTeams.indexOf(team), 1);
+      }
       this.setState({
-        teamMember: {
-          ...teamMember,
-          parentPhone: `${event.target.value}`,
-          formattedParentPhone: formatPhone(event.target.value)
-        },
-        errors: { ...errors, parentPhone: event.target.value.length !== 10 }
+        teamMember: { ...teamMember, subTeams }
       });
-    }
-    if (event.target.id === 'parentEmail') {
-      this.setState({
-        errors: { ...errors, parentEmail: !emailValid(event.target.value) }
-      });
+      console.log(subTeams);
     }
   }
 
   submitForm(event) {
     event.preventDefault();
-    const { teamMember, errors } = this.state;
+    const { teamMember, errors, editing } = this.state;
     // console.log(teamMember);
-    axios.post('/api/v1/teamMembers', teamMember).then(
-      () => {
-        console.log('added team member');
-      },
-      (err) => {
-        this.setState({ errors: { ...errors, ...err.response.data.errors } });
-      }
-    );
+    if (!editing) {
+      axios.post('/api/v1/teamMembers', teamMember).then(
+        () => {
+          this.setState({ success: true });
+          console.log('added team member');
+        },
+        (err) => {
+          this.setState({ errors: { ...errors, ...err.response.data.errors } });
+        }
+      );
+    } else {
+      axios.put('/api/v1/teamMembers', teamMember).then(
+        () => {
+          this.setState({ success: true });
+          console.log('updated team member');
+        },
+        (err) => {
+          this.setState({ errors: { ...errors, ...err.response.data.errors } });
+        }
+      );
+    }
   }
 
   render() {
-    const { teamMember, errors } = this.state;
+    const { teamMember, errors, success } = this.state;
     return (
       <Page>
-        {errors.code === 101 ? (
+        {errors.code === 101 || success ? (
           <h3 className="w-75 mx-auto text-center">
-            You seem to have already submitted this form. If this is a mistake, please contact
-            support or retry the form.
+            {errors.code === 101
+              ? 'You seem to have already submitted this form. If this is a mistake, please contact support or retry the form.'
+              : 'Thanks for submitting the interest form. Please keep an eye on your email.'}
           </h3>
         ) : (
           <React.Fragment>
@@ -111,3 +143,13 @@ export default class RoboticsInterestForm extends Component {
     );
   }
 }
+
+RoboticsInterestForm.defaultProps = {
+  teamMember: undefined,
+  editing: false
+};
+
+RoboticsInterestForm.propTypes = {
+  teamMember: PropTypes.object,
+  editing: PropTypes.bool
+};

@@ -14,7 +14,8 @@ export default class Dashboard extends Component {
         days: 0,
         years: 0
       },
-      usersSinceOffsetUnits: 'weeks'
+      usersSinceOffsetUnits: 'weeks',
+      interestByMajor: []
     };
 
     this.getInterestEntries();
@@ -22,16 +23,34 @@ export default class Dashboard extends Component {
 
   getInterestEntries() {
     axios.get('/api/v1/teamMembers').then((response) => {
-      this.setState({ interestEntries: response.data.length });
+      const interestByMajor = [];
+      for (const entry of response.data) {
+        const index = interestByMajor.findIndex(maj => maj.major === entry.major);
+        if (index !== -1) {
+          interestByMajor[index].count++;
+        } else {
+          const maj = {
+            major: entry.major,
+            count: 1
+          };
+          interestByMajor.push(maj);
+        }
+      }
+      this.setState({ interestEntries: response.data.length, interestByMajor });
     });
   }
 
   render() {
-    const { usersSinceOffset, usersSinceOffsetUnits, interestEntries } = this.state;
+    const {
+      usersSinceOffset,
+      usersSinceOffsetUnits,
+      interestEntries,
+      interestByMajor
+    } = this.state;
     return (
       <Page title="Dashboard">
         <div className="row">
-          <div className="col-md-3">
+          {/* <div className="col-md-3">
             <DashboardCard
               title={`Users Logged In since ${moment
                 .duration(usersSinceOffset)
@@ -41,10 +60,19 @@ export default class Dashboard extends Component {
                 date: moment().subtract(moment.duration(usersSinceOffset))
               }}
             />
-          </div>
+            </div> */}
           <div className="col-md-3">
             <DashboardCard title="Total entries in Interest Form">
               {interestEntries}
+            </DashboardCard>
+          </div>
+          <div className="col-md-3">
+            <DashboardCard title="Interest By Major">
+              {interestByMajor.map(maj => (
+                <p key={maj.major}>
+                  {`${maj.major}: ${maj.count}`}
+                </p>
+              ))}
             </DashboardCard>
           </div>
         </div>
