@@ -123,7 +123,7 @@ export default class Users extends Component {
       createdAt: new Date(),
       createdBy: currentUser.username
     };
-    axios.post('api/v1/signup', newUser).then(
+    axios.post('api/v1/accounts/signup', newUser).then(
       () => {
         this.setState({ selectedUser: undefined });
         this.getUsers();
@@ -139,7 +139,7 @@ export default class Users extends Component {
       users, selectedUser, errors, duplicateUsername, editing
     } = this.state;
     return (
-      <Page title="Users">
+      <Page title="Internal Users" parentPage="Users">
         {errors && errors.message ? (
           <div className="alert alert-danger">
             {errors.message}
@@ -162,27 +162,29 @@ export default class Users extends Component {
             editing={editing}
           />
         ) : (
-          <div className="container-fluid">
-            <div className="row mb-2">
-              <div className="col">
-                <button
-                  type="button"
-                  className="btn btn-sm btn-outline-light"
-                  onClick={() => this.setState({ selectedUser: { isActive: true }, editing: false })
-                  }
-                >
-                  New User
-                </button>
-              </div>
-            </div>
-            <div className="row">
-              <div className="col">
-                <UserList
-                  users={users}
-                  selectUser={_user => this.setState({ selectedUser: _user, editing: true })}
-                  deleteUser={index => this.delete(index)}
-                  cancelDelete={index => this.cancelDelete(index)}
-                />
+          <div className="row">
+            <div className="col-lg-12">
+              <div className="panel panel-default">
+                <div className="panel-header">
+                  <div className="panel-heading">
+                    <button
+                      type="button"
+                      className="pull-right btn btn-md btn-default"
+                      onClick={() => this.setState({ selectedUser: { isActive: true }, editing: false })
+                      }
+                    >
+                      <em className="fa fa-plus" />
+                    </button>
+                  </div>
+                </div>
+                <div className="panel-body">
+                  <UserList
+                    users={users}
+                    selectUser={_user => this.setState({ selectedUser: _user, editing: true })}
+                    deleteUser={index => this.delete(index)}
+                    cancelDelete={index => this.cancelDelete(index)}
+                  />
+                </div>
               </div>
             </div>
           </div>

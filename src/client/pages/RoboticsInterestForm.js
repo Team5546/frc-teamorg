@@ -1,26 +1,10 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import phoneFormat from 'phone-formatter';
 import PropTypes from 'prop-types';
 import Page from '../components/Page';
 import InterestForm from '../components/InterestForm';
 import AlertBox from '../helpers/stateless/AlertBox';
-
-const formatPhone = (phone) => {
-  const phoneString = `${phone}`;
-  let formattedPhone = '(___) ___-____';
-  formattedPhone = formattedPhone.split('');
-  formattedPhone[1] = phoneString.charAt(0) || ' ';
-  formattedPhone[2] = phoneString.charAt(1) || ' ';
-  formattedPhone[3] = phoneString.charAt(2) || ' ';
-  formattedPhone[6] = phoneString.charAt(3) || ' ';
-  formattedPhone[7] = phoneString.charAt(4) || ' ';
-  formattedPhone[8] = phoneString.charAt(5) || ' ';
-  formattedPhone[10] = phoneString.charAt(6) || ' ';
-  formattedPhone[11] = phoneString.charAt(7) || ' ';
-  formattedPhone[12] = phoneString.charAt(8) || ' ';
-  formattedPhone[13] = phoneString.charAt(9) || ' ';
-  return formattedPhone.join('');
-};
 
 const emailValid = (email) => {
   const emailRegex = /^([A-Za-z0-9_\-.+])+@([A-Za-z0-9_\-.])+\.([A-Za-z]{2,})$/;
@@ -33,13 +17,51 @@ export default class RoboticsInterestForm extends Component {
 
     const { teamMember } = this.props;
     this.state = {
-      teamMember: teamMember || {},
+      teamMember: teamMember || { parents: [{}], subTeams: [] },
       errors: {},
       editing: props.editing || false
     };
 
     this.handleChange = this.handleChange.bind(this);
+    this.handleParent = this.handleParent.bind(this);
+    this.addParent = this.addParent.bind(this);
+    this.removeParent = this.removeParent.bind(this);
     this.submitForm = this.submitForm.bind(this);
+  }
+
+  addParent() {
+    const { teamMember } = this.state;
+    teamMember.parents.push({});
+    this.setState({ teamMember });
+  }
+
+  removeParent(i) {
+    const { teamMember } = this.state;
+    teamMember.parents.splice(i, 1);
+    this.setState({ teamMember });
+  }
+
+  handleParent(event) {
+    const { teamMember, errors } = this.state;
+    const { id } = event.target;
+    let { value } = event.target;
+    const index = parseInt(id[0], 10);
+    if (id.includes('Phone')) {
+      errors.parentPhone = value.length !== 10;
+      value = phoneFormat.normalize(value);
+    }
+    if (id.includes('Email')) {
+      errors.parentEmail = !emailValid(event.target.value);
+    }
+
+    const field = id.substring(id.indexOf('parent') + 6);
+    const lowerField = field.substring(0, 1).toLowerCase() + field.substring(1);
+    teamMember.parents[index][lowerField] = value;
+
+    this.setState({
+      teamMember,
+      errors
+    });
   }
 
   handleChange(event) {
@@ -52,21 +74,6 @@ export default class RoboticsInterestForm extends Component {
         // console.log(event.target.value.indexOf('@args.us'));
         this.setState({
           errors: { ...errors, email: event.target.value.indexOf('@args.us') === -1 }
-        });
-      }
-      if (event.target.id === 'parentPhone') {
-        this.setState({
-          teamMember: {
-            ...teamMember,
-            parentPhone: `${event.target.value}`,
-            formattedParentPhone: formatPhone(event.target.value)
-          },
-          errors: { ...errors, parentPhone: event.target.value.length !== 10 }
-        });
-      }
-      if (event.target.id === 'parentEmail') {
-        this.setState({
-          errors: { ...errors, parentEmail: !emailValid(event.target.value) }
         });
       }
     } else {
@@ -115,7 +122,7 @@ export default class RoboticsInterestForm extends Component {
   render() {
     const { teamMember, errors, success } = this.state;
     return (
-      <Page>
+      <Page title="Interest Form">
         {errors.code === 101 || success ? (
           <h3 className="w-75 mx-auto text-center">
             {errors.code === 101
@@ -135,6 +142,9 @@ export default class RoboticsInterestForm extends Component {
               submitForm={this.submitForm}
               teamMember={teamMember}
               handleChange={this.handleChange}
+              handleParent={this.handleParent}
+              addParent={this.addParent}
+              removeParent={this.removeParent}
               errors={errors}
             />
           </React.Fragment>

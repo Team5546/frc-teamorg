@@ -1,52 +1,8 @@
 /* eslint-disable no-param-reassign */
 const express = require('express');
-const mongoose = require('mongoose');
-const db = require('./db');
+const { User } = require('./models');
 
 const userRouter = express.Router();
-
-const userSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    unique: true,
-    required: true
-  },
-  firstName: {
-    type: String,
-    required: true
-  },
-  lastName: {
-    type: String,
-    required: true
-  },
-  password: {
-    type: String,
-    required: true
-  },
-  isAdmin: {
-    type: Boolean,
-    required: true
-  },
-  isActive: {
-    type: Boolean,
-    required: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  createdBy: {
-    type: String
-  },
-  lastLogin: {
-    type: Date
-  },
-  lastModified: Date,
-  modifiedBy: String,
-  teamMemberId: mongoose.Schema.Types.ObjectId
-});
-
-const User = db.model('User', userSchema, 'users');
 
 userRouter.get('/', (req, res) => {
   User.find({}, '-password', (err, doc) => {
@@ -70,7 +26,14 @@ userRouter.get('/:id', (req, res) => {
 
 userRouter.put('/:id', (req, res) => {
   const {
-    username, firstName, lastName, lastModified, modifiedBy, isAdmin, isActive
+    username,
+    firstName,
+    lastName,
+    lastModified,
+    modifiedBy,
+    isAdmin,
+    isActive,
+    image
   } = req.body;
   const { id } = req.params;
   if (!username || !firstName || !lastName) {
@@ -105,7 +68,8 @@ userRouter.put('/:id', (req, res) => {
               lastModified,
               modifiedBy,
               isAdmin,
-              isActive
+              isActive,
+              image
             }
           },
           (updateErr, upDoc) => {

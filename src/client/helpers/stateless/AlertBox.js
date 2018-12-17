@@ -6,13 +6,14 @@ const AlertBox = ({
 }) => (
   <React.Fragment>
     {condition && (
-      <div className={`alert alert-${type} alert-dismissible fade show mb-0`} role="alert">
+      <div className={`alert bg-${type}`} role="alert">
+        <em className="fa fa-lg fa-warning">
+&nbsp;
+        </em>
         {message}
-        <button type="button" className="close" aria-label="Close" onClick={close}>
-          <span aria-hidden="true">
-&times;
-          </span>
-        </button>
+        <a href="#" onClick={close} className="pull-right">
+          <em className="fa fa-lg fa-close" />
+        </a>
       </div>
     )}
   </React.Fragment>

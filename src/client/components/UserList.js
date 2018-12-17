@@ -7,7 +7,7 @@ const UserList = ({
 }) => (
   <UserContext.Consumer>
     {({ user }) => (
-      <table className="table users-table">
+      <table className="table">
         <thead>
           <tr>
             <th scope="col" />
@@ -36,7 +36,7 @@ Last Modified
           {users.map((_user, index) => (
             <tr key={`user${_user._id}`}>
               <td>
-                <i
+                <em
                   className={`fa ${_user.isAdmin ? 'fa-toolbox' : 'fa-user'} ${
                     _user.isActive ? 'active' : 'inactive'
                   }`}
@@ -79,28 +79,26 @@ Last Modified
                   <div className="btn-group btn-group-sm" role="group" aria-label="User Actions">
                     <button
                       type="button"
-                      className="btn btn-outline-warning"
+                      className="btn btn-sm btn-warning"
                       title="Edit"
                       onClick={() => selectUser(_user)}
                     >
-                      <i className="fa fa-pencil-alt" />
+                      <em className="fa fa-pencil-alt" />
                     </button>
                     <button
                       type="button"
-                      className="btn btn-outline-danger"
+                      className="btn btn-danger"
                       title="Delete"
                       onClick={() => deleteUser(index)}
                     >
-                      <i className="fa fa-trash" />
+                      <em className="fa fa-trash" />
                     </button>
                   </div>
                 ) : (
                   <div className="btn-group btn-group-sm" role="group" aria-label="User Actions">
                     <button
                       type="button"
-                      className={`btn btn-sm btn-outline-${
-                        _user.reallySure ? 'danger' : 'warning'
-                      }`}
+                      className={`btn btn-sm btn-${_user.reallySure ? 'danger' : 'warning'}`}
                       title={`${_user.reallySure ? 'Are you sure?' : 'Edit'}`}
                       onClick={() => {
                         if (_user.reallySure) {
@@ -111,19 +109,19 @@ Last Modified
                       }}
                     >
                       {_user.reallySure ? (
-                        <i className="fa fa-trash" />
+                        <em className="fa fa-trash" />
                       ) : (
-                        <i className="fa fa-pencil-alt" />
+                        <em className="fa fa-pencil-alt" />
                       )}
                     </button>
                     {_user.reallySure && (
                       <button
                         type="button"
-                        className="btn btn-sm btn-outline-light"
+                        className="btn btn-sm btn-default"
                         title="Cancel"
                         onClick={() => cancelDelete(index)}
                       >
-                        <i className="fa fa-times" />
+                        <em className="fa fa-times" />
                       </button>
                     )}
                   </div>

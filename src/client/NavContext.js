@@ -3,7 +3,8 @@ import React from 'react';
 const NavContext = React.createContext({
   page: 'landing',
   setPage: () => {},
-  props: {}
+  props: {},
+  showSideMenu: true
 });
 
 export default NavContext;

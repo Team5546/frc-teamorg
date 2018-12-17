@@ -1,96 +1,22 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable array-callback-return */
 const express = require('express');
-const mongoose = require('mongoose');
-const db = require('./db');
+
+const { TeamMember } = require('./models');
 
 const teamMembersRouter = express.Router();
-
-const teamMemberSchema = new mongoose.Schema({
-  firstName: {
-    type: String,
-    required: true
-  },
-  lastName: {
-    type: String,
-    required: true
-  },
-  nickname: String,
-  grade: {
-    type: Number,
-    required: true
-  },
-  major: {
-    type: String,
-    required: true
-  },
-  subTeams: {
-    type: Array,
-    default: []
-  },
-  email: {
-    type: String,
-    required: true
-  },
-  parentEmail: {
-    type: String,
-    required: true
-  },
-  parentPhone: {
-    type: String,
-    required: true
-  },
-  parentFirstName: {
-    type: String,
-    required: true
-  },
-  parentLastName: {
-    type: String,
-    required: true
-  },
-  studentContract: {
-    type: Boolean,
-    default: false
-  },
-  parentContract: {
-    type: Boolean,
-    default: false
-  },
-  medicalForm: {
-    type: Boolean,
-    default: false
-  },
-  duesPaid: {
-    type: Boolean,
-    defualt: false
-  },
-  address1: {
-    type: String,
-    required: true
-  },
-  address2: {
-    type: String,
-    default: ''
-  },
-  city: {
-    type: String,
-    required: true
-  },
-  state: {
-    type: String,
-    default: 'VA'
-  },
-  zipCode: {
-    type: String,
-    required: true
-  }
-});
-
-const TeamMember = db.model('TeamMember', teamMemberSchema);
 
 teamMembersRouter.get('/', (req, res) => {
   TeamMember.find((err, doc) => {
     res.json(doc);
+  });
+});
+
+teamMembersRouter.get('/:id', (req, res) => {
+  const { id } = req.params;
+  TeamMember.findById(id, (err, doc) => {
+    if (err) res.status(500).send();
+    else res.json(doc);
   });
 });
 
@@ -103,15 +29,16 @@ teamMembersRouter.post('/', (req, res) => {
     major,
     subTeams,
     email,
-    parentEmail,
-    parentPhone,
-    parentFirstName,
-    parentLastName,
+    parents,
     address1,
     address2,
     city,
     state,
-    zipCode
+    zipCode,
+    studentContract,
+    parentContract,
+    medicalForm,
+    duesPaid
   } = req.body;
   TeamMember.findOne(
     {
@@ -133,15 +60,16 @@ teamMembersRouter.post('/', (req, res) => {
           major,
           subTeams,
           email,
-          parentEmail,
-          parentPhone,
-          parentFirstName,
-          parentLastName,
+          parents,
           address1,
           address2,
           city,
           state,
-          zipCode
+          zipCode,
+          studentContract: studentContract || false,
+          parentContract: parentContract || false,
+          medicalForm: medicalForm || false,
+          duesPaid: duesPaid || false
         });
         console.log(create);
         create.then(() => {
@@ -167,15 +95,16 @@ teamMembersRouter.put('/', (req, res) => {
     major,
     subTeams,
     email,
-    parentEmail,
-    parentPhone,
-    parentFirstName,
-    parentLastName,
+    parents,
     address1,
     address2,
     city,
     state,
-    zipCode
+    zipCode,
+    medicalForm,
+    studentContract,
+    parentContract,
+    duesPaid
   } = req.body;
   TeamMember.findOne(
     {
@@ -204,15 +133,16 @@ teamMembersRouter.put('/', (req, res) => {
               major,
               subTeams,
               email,
-              parentEmail,
-              parentPhone,
-              parentFirstName,
-              parentLastName,
+              parents,
               address1,
               address2,
               city,
               state,
-              zipCode
+              zipCode,
+              medicalForm,
+              studentContract,
+              parentContract,
+              duesPaid
             }
           },
           (updateErr, upDoc) => {
@@ -230,4 +160,4 @@ teamMembersRouter.put('/', (req, res) => {
   );
 });
 
-module.exports = { teamMembersRouter, TeamMember };
+module.exports = { teamMembersRouter };

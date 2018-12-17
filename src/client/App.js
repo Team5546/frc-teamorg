@@ -1,18 +1,21 @@
 import React, { Component } from 'react';
-import './app.scss';
+// import './app.scss';
 import cookie from 'react-cookies';
 import axios from 'axios';
 // Main pages
-import Home from './pages/Home';
 import Landing from './pages/Landing';
 import Users from './pages/Users';
 import Dashboard from './pages/Dashboard';
 import RoboticsInterestForm from './pages/RoboticsInterestForm';
 import Subteams from './pages/Subteams';
+import MemberInfo from './pages/MemberInfo';
+import Meetings from './pages/Meetings';
+import Attendance from './pages/Attendance';
+import MemberUpload from './pages/MemberUpload';
+import Account from './pages/Account';
 // Components
 import Nav from './components/Nav';
 import Sidemenu from './helpers/stateless/Sidemenu';
-import AdminToolbar from './components/AdminToolbar';
 
 import { UserContext, defaultUser } from './UserContext';
 import AlertBox from './helpers/stateless/AlertBox';
@@ -25,13 +28,14 @@ export default class App extends Component {
 
     this.state = {
       sessionId: cookie.load('sessionId'),
-      prevPages: [],
       userContext: defaultUser,
       navContext: {
         page: 'landing',
         setPage: this.setPage,
+        showSideMenu: true,
         props: {}
-      }
+      },
+      showSideMenu: true
     };
 
     const { sessionId } = this.state;
@@ -39,10 +43,10 @@ export default class App extends Component {
       axios.get(`/api/v1/sessions/${sessionId}`).then(
         (response) => {
           this.setUser(response.data.userId);
-          this.setPage('home');
         },
         () => {
           this.setErrorMessage('An unexpected error has occured. You have been logged out.');
+          this.setPage('landing');
         }
       );
     }
@@ -53,11 +57,19 @@ export default class App extends Component {
     this.toggleSideMenu = this.toggleSideMenu.bind(this);
     this.setPage = this.setPage.bind(this);
     this.updateUser = this.updateUser.bind(this);
+    this.getShowSideMenu = this.getShowSideMenu.bind(this);
   }
 
   componentDidMount() {
     const { userContext } = this.state;
     this.setState({ userContext: { ...userContext, updateUser: this.updateUser } });
+    const page = cookie.load('page');
+    if (page) this.setPage(page);
+  }
+
+  getShowSideMenu() {
+    const { showSideMenu } = this.state;
+    return showSideMenu;
   }
 
   setUser(userId) {
@@ -67,27 +79,18 @@ export default class App extends Component {
     });
   }
 
-  setPage(page, props, toggleSidemenu, goingBack) {
-    const { prevPages, navContext } = this.state;
-    let tempPrevPages = prevPages;
-    if (
-      prevPages.length === 0
-      || (!goingBack
-        && navContext.page !== prevPages[prevPages.length - 1].name
-        && page !== navContext.page)
-    ) {
-      tempPrevPages.push(Object.keys(navContext).length === 0 ? { page, props } : navContext);
-    }
-    if (page === 'home') tempPrevPages = [];
+  setPage(page, props) {
+    const { navContext } = this.state;
+    cookie.save('page', page, { path: '/' });
     this.setState({
-      prevPages: tempPrevPages,
       navContext: {
+        ...navContext,
         page,
         props,
         setPage: this.setPage
       }
     });
-    if (toggleSidemenu) this.toggleSideMenu();
+    // if (toggleSidemenu) this.toggleSideMenu();
   }
 
   setErrorMessage(message) {
@@ -141,14 +144,17 @@ export default class App extends Component {
   }
 
   logout() {
-    this.setState({ user: undefined, sessionId: undefined });
+    this.setState({ userContext: undefined, sessionId: undefined });
     cookie.remove('sessionId');
     window.location.reload();
   }
 
   toggleSideMenu() {
-    const { showSideMenu } = this.state;
-    this.setState({ showSideMenu: !showSideMenu });
+    const { showSideMenu, navContext } = this.state;
+    this.setState({
+      showSideMenu: !showSideMenu,
+      navContext: { ...navContext, showSideMenu: !showSideMenu }
+    });
   }
 
   isAdmin() {
@@ -165,15 +171,18 @@ export default class App extends Component {
 
   render() {
     const {
-      user, showSideMenu, navContext, userContext, errors, prevPages
+      user, showSideMenu, navContext, userContext, errors
     } = this.state;
     let visiblePage = null;
+
+    if (navContext.page === 'attendance' && !navContext.props) navContext.page = 'meetings';
+    if (navContext.page === 'memberInfo' && !navContext.props) navContext.page = 'teamMembers';
+
+    // console.log(navContext.props);
+
     switch (navContext.page) {
       case 'users':
         visiblePage = <Users user={user} {...navContext.props} />;
-        break;
-      case 'home':
-        visiblePage = <Home {...navContext.props} />;
         break;
       case 'dashboard':
         visiblePage = <Dashboard {...navContext.props} />;
@@ -187,56 +196,46 @@ export default class App extends Component {
       case 'subTeams':
         visiblePage = <Subteams {...navContext.props} />;
         break;
+      case 'memberInfo':
+        visiblePage = <MemberInfo {...navContext.props} />;
+        break;
+      case 'meetings':
+        visiblePage = <Meetings {...navContext.props} />;
+        break;
+      case 'attendance':
+        visiblePage = <Attendance {...navContext.props} />;
+        break;
+      case 'memberUpload':
+        visiblePage = <MemberUpload {...navContext.props} />;
+        break;
+      case 'account':
+        visiblePage = (
+          <Account user={userContext.user} setPage={this.setPage} {...navContext.props} />
+        );
+        break;
       default:
         visiblePage = <Landing teamNum={5546} setPage={this.setPage} {...navContext.props} />;
     }
+
     return (
       <UserContext.Provider value={userContext}>
         <NavContext.Provider value={navContext}>
-          <div className="container-fluid">
-            <div className="row">
-              <div className={`col${!navContext.page || navContext.page === '' ? ' p-0' : ''}`}>
-                <Nav login={this.login} signup={this.signup} toggleSideMenu={this.toggleSideMenu} />
-                {this.isAdmin() && <AdminToolbar setPage={this.setPage} />}
-                {navContext.name
-                  && navContext.name !== 'landing'
-                  && navContext.name !== 'home' && (
-                    <React.Fragment>
-                      <div className="container-fluid my-2">
-                        <div className="row">
-                          <div className="col-auto">
-                            {prevPages.map((page, i) => (
-                              <button
-                                type="button"
-                                className="btn btn-link btn-breadcrumb"
-                                key={page.name + i}
-                                onClick={() => {
-                                  const tempPrevPages = prevPages;
-                                  tempPrevPages.splice(i + 1);
-                                  const lastPage = tempPrevPages[i];
-                                  this.setState({ prevPages: tempPrevPages });
-                                  this.setPage(lastPage.name, lastPage.props, undefined, true);
-                                }}
-                              >
-                                {page.name}
-                                {' '}
-\
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </React.Fragment>
-                )}
-                <AlertBox
-                  condition={errors}
-                  message={`${(errors && errors.message) || ''}\n${(errors && errors.username)
-                    || ''}\n${(errors && errors.password) || ''}`}
-                  close={() => this.setState({ errors: undefined })}
-                  type="danger"
-                />
-                {visiblePage}
-              </div>
+          {userContext.user._id ? (
+            <React.Fragment>
+              <Nav
+                login={this.login}
+                signup={this.signup}
+                toggleSideMenu={this.toggleSideMenu}
+                showSideMenu={showSideMenu}
+              />
+              <AlertBox
+                condition={errors}
+                message={`${(errors && errors.message) || ''}\n${(errors && errors.username)
+                  || ''}\n${(errors && errors.password) || ''}`}
+                close={() => this.setState({ errors: undefined })}
+                type="danger"
+              />
+              {visiblePage}
               {showSideMenu ? (
                 <Sidemenu
                   logout={this.logout}
@@ -244,42 +243,52 @@ export default class App extends Component {
                   setPage={this.setPage}
                   links={[
                     {
-                      displayName: 'Home',
-                      pageName: 'home',
-                      requiresAdmin: false
-                    },
-                    {
-                      displayName: 'Users',
-                      pageName: 'users',
+                      name: 'Dashboard',
+                      icon: 'tachometer-alt',
                       requiresAdmin: true
                     },
                     {
-                      pageName: 'dashboard',
-                      displayName: 'Dashboard',
+                      name: 'Users',
+                      icon: 'users',
+                      requiresAdmin: true,
+                      subItems: [
+                        {
+                          name: 'Internal Users',
+                          pageName: 'users'
+                        },
+                        {
+                          name: 'Team Members'
+                        }
+                      ]
+                    },
+                    {
+                      name: 'Interest Form',
+                      icon: 'address-book',
                       requiresAdmin: true
                     },
                     {
-                      pageName: 'interestForm',
-                      displayName: 'Interest Form',
+                      name: 'Sub Teams',
+                      icon: 'list-ul',
                       requiresAdmin: true
                     },
                     {
-                      pageName: 'teamMembers',
-                      displayName: 'Team Members',
+                      name: 'Meetings',
+                      icon: 'calendar',
                       requiresAdmin: true
                     },
                     {
-                      pageName: 'subTeams',
-                      displayName: 'Sub Teams',
-                      requiresAdmin: true
+                      name: 'Account',
+                      icon: 'user-circle'
                     }
                   ]}
                 />
               ) : (
                 <div />
               )}
-            </div>
-          </div>
+            </React.Fragment>
+          ) : (
+            <Landing />
+          )}
         </NavContext.Provider>
       </UserContext.Provider>
     );

@@ -1,17 +1,9 @@
 /* eslint-disable no-param-reassign */
 const express = require('express');
-const mongoose = require('mongoose');
 const randomString = require('random-base64-string');
-const db = require('./db');
+const { Session } = require('./models');
 
 const sessionsRouter = express.Router();
-
-const sessionsSchema = new mongoose.Schema({
-  userId: String,
-  sessionId: String
-});
-
-const Session = db.model('Session', sessionsSchema);
 
 const findOrCreateSession = (sessionsModel, userId, callback) => {
   sessionsModel.findOne({ userId }, (err, session) => {
