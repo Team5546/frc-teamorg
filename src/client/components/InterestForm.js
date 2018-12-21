@@ -124,7 +124,10 @@ Parent Info
       </div>
       <div className="panel-body">
         {teamMember.parents.map((parent, i) => (
-          <div className="form-row" key={`parent${i}`}>
+          <div
+            className="form-row"
+            key={`parent${parent.firstName || ''}${parent.lastName || ''}`}
+          >
             <div className="col-md-11">
               <h4>
                 {`Parent ${i + 1} - ${parent.firstName || ''} ${parent.lastName || ''}`}

@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 import React from 'react';
 import PropTypes from 'prop-types';
 import camelcase from 'camelcase';
@@ -17,7 +18,9 @@ const Table = ({
                 className={column.name === 'controls' ? 'col-md-auto' : ''}
                 style={{ whiteSpace: 'nowrap', width: 'auto', cursor: 'pointer' }}
                 onClick={() => {
-                  if (handleSort) handleSort(column.sortKey || column.key || camelcase(column.name));
+                  if (handleSort) {
+                    handleSort(column.sortKey || column.key || camelcase(column.name));
+                  }
                 }}
               >
                 {column.name}
@@ -88,8 +91,9 @@ const Table = ({
                       <button
                         type="button"
                         className="btn btn-sm btn-warning"
-                        onClick={() => setPage(column.editPage, { teamMember: entry, editing: true })
-                        }
+                        onClick={() => {
+                          setPage(column.editPage, { teamMember: entry, editing: true });
+                        }}
                       >
                         <i className="fa fa-pencil-alt" />
                       </button>

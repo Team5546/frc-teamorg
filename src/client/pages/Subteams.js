@@ -29,14 +29,12 @@ export default class Subteams extends Component {
   getMembers() {
     axios.get('/api/v1/teamMembers').then((response) => {
       const members = {};
-      response.data.map((entry) => {
-        entry.subTeams.map((subTeam) => {
-          if (!members[subTeam]) {
-            members[subTeam] = [];
-          }
-          members[subTeam].push(entry);
-        });
-      });
+      response.data.map(entry => entry.subTeams.map((subTeam) => {
+        if (!members[subTeam]) {
+          members[subTeam] = [];
+        }
+        return members[subTeam].push(entry);
+      }));
       console.log(members);
       this.setState({ members });
     });
@@ -94,8 +92,8 @@ export default class Subteams extends Component {
         axios
           .put(`/api/v1/google/groups/${team}@argsrobotics.com/updateMembers`, { toAdd, toRemove })
           .then(
-            (response) => {
-              console.log(response.data);
+            (res) => {
+              console.log(res.data);
               this.toggleGroup(team);
             },
             (err) => {
