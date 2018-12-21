@@ -12,7 +12,7 @@ const AlertBox = ({
         </em>
         {message}
         <a href="#" onClick={close} className="pull-right">
-          <em className="fa fa-lg fa-close" />
+          <em className="fa fa-lg fa-times" />
         </a>
       </div>
     )}
@@ -25,7 +25,7 @@ AlertBox.defaultProps = {
 };
 
 AlertBox.propTypes = {
-  condition: PropTypes.bool,
+  condition: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]),
   message: PropTypes.string,
   close: PropTypes.func.isRequired,
   type: PropTypes.string.isRequired

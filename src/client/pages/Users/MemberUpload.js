@@ -3,9 +3,9 @@ import React, { Component } from 'react';
 import ReactFileReader from 'react-file-reader';
 import phoneFormat from 'phone-formatter';
 import axios from 'axios';
-import Page from '../components/Page';
-import Panel from '../helpers/stateless/Panel';
-import Table from '../helpers/stateless/Table';
+import Page from '../../components/Page';
+import Panel from '../../helpers/stateless/Panel';
+import Table from '../../helpers/stateless/Table';
 
 export default class MemberUpload extends Component {
   constructor() {

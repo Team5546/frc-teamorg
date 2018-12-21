@@ -102,4 +102,4 @@ userRouter.delete('/:id', (req, res) => {
   });
 });
 
-module.exports = { userRouter, User };
+module.exports = { userRouter };

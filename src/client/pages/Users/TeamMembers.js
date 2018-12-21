@@ -1,21 +1,24 @@
-/* eslint-disable react/jsx-one-expression-per-line, jsx-a11y/label-has-for */
+/* eslint-disable react/jsx-one-expression-per-line,
+  jsx-a11y/label-has-for, class-methods-use-this, max-len */
 import React, { Component } from 'react';
 import axios from 'axios';
 // import PropTypes from 'prop-types';
-import Page from '../components/Page';
-import AlertBox from '../helpers/stateless/AlertBox';
-import Table from '../helpers/stateless/Table';
-import NavContext from '../NavContext';
+import Page from '../../components/Page';
+import AlertBox from '../../helpers/stateless/AlertBox';
+import Table from '../../helpers/stateless/Table';
+import NavContext from '../../NavContext';
 
 export default class TeamMembers extends Component {
   constructor() {
     super();
     this.state = {
       teamMembers: [],
-      formattedTeamMembers: []
+      formattedTeamMembers: [],
+      sortBy: 'nameDown'
     };
 
     this.sort = this.sort.bind(this);
+    this.updateSigninStatus = this.updateSigninStatus.bind(this);
 
     this.getTeamMembers();
   }
@@ -23,7 +26,7 @@ export default class TeamMembers extends Component {
   getTeamMembers() {
     axios.get('/api/v1/teamMembers').then((response) => {
       this.setState({ teamMembers: response.data });
-      this.sort();
+      this.sort('name');
     });
   }
 
@@ -50,7 +53,11 @@ export default class TeamMembers extends Component {
     this.setState({ users: updatedUsers });
   }
 
-  sort(sortBy) {
+  sort(sort) {
+    let { sortBy } = this.state;
+    if (sortBy.substring(0, sort.length) !== sort) sortBy = `${sort}Up`;
+    else if (sortBy.substring(sort.length) === 'Up') sortBy = `${sort}Down`;
+    else sortBy = `${sort}Up`;
     this.setState({ sortBy });
     this.sortFilter(sortBy, undefined);
   }
@@ -67,8 +74,71 @@ export default class TeamMembers extends Component {
     // console.log(sortOption, filterOption);
     let tempMembers = teamMembers;
     switch (sortOption) {
-      case 'grade':
-        tempMembers.sort((a, b) => a.grade - b.grade);
+      case 'nameUp':
+        tempMembers.sort((a, b) => {
+          if (`${a.firstName} ${a.lastName}` < `${b.firstName} ${b.lastName}`) return -1;
+          if (`${a.firstName} ${a.lastName}` > `${b.firstName} ${b.lastName}`) return 1;
+          return 0;
+        });
+        break;
+      case 'nameDown':
+        tempMembers.sort((a, b) => {
+          if (`${a.firstName} ${a.lastName}` > `${b.firstName} ${b.lastName}`) return -1;
+          if (`${a.firstName} ${a.lastName}` < `${b.firstName} ${b.lastName}`) return 1;
+          return 0;
+        });
+        break;
+      case 'emailUp':
+        tempMembers.sort((a, b) => {
+          if (a.email < b.email) return -1;
+          if (a.email > b.email) return 1;
+          return 0;
+        });
+        break;
+      case 'emailDown':
+        tempMembers.sort((a, b) => {
+          if (a.email > b.email) return -1;
+          if (a.email < b.email) return 1;
+          return 0;
+        });
+        break;
+      case 'subTeamMeetingsAttendedUp':
+        tempMembers.sort((a, b) => b.subTeamMeetingsAttended - a.subTeamMeetingsAttended);
+        break;
+      case 'subTeamMeetingsAttendedDown':
+        tempMembers.sort((a, b) => a.subTeamMeetingsAttended - b.subTeamMeetingsAttended);
+        break;
+      case 'teamMeetingsAttendedUp':
+        tempMembers.sort((a, b) => b.teamMeetingsAttended - a.teamMeetingsAttended);
+        break;
+      case 'teamMeetingsAttendedDown':
+        tempMembers.sort((a, b) => a.teamMeetingsAttended - b.teamMeetingsAttended);
+        break;
+      case 'contractsUp':
+        tempMembers.sort(
+          (a, b) => [b.studentContract ? 1 : 0, b.parentContract ? 1 : 0, b.medicalForm ? 1 : 0].reduce(
+            (total, num) => total + num
+          )
+            - [a.studentContract ? 1 : 0, a.parentContract ? 1 : 0, a.medicalForm ? 1 : 0].reduce(
+              (total, num) => total + num
+            )
+        );
+        break;
+      case 'contractsDown':
+        tempMembers.sort(
+          (a, b) => [a.studentContract ? 1 : 0, a.parentContract ? 1 : 0, a.medicalForm ? 1 : 0].reduce(
+            (total, num) => total + num
+          )
+            - [b.studentContract ? 1 : 0, b.parentContract ? 1 : 0, b.medicalForm ? 1 : 0].reduce(
+              (total, num) => total + num
+            )
+        );
+        break;
+      case 'duesPaidUp':
+        tempMembers.sort((a, b) => (b.duesPaid ? 1 : 0) - (a.duesPaid ? 1 : 0));
+        break;
+      case 'duesPaidDown':
+        tempMembers.sort((a, b) => (a.duesPaid ? 1 : 0) - (b.duesPaid ? 1 : 0));
         break;
       default:
         tempMembers.sort((a, b) => {
@@ -92,6 +162,11 @@ export default class TeamMembers extends Component {
           val => val.duesPaid && val.studentContract && val.parentContract && val.medicalForm
         );
         break;
+      case 'missingMeetings':
+        tempMembers = tempMembers.filter(
+          val => val.subTeamMeetingsAttended < 80 || val.teamMeetingsAttended < 50
+        );
+        break;
       default:
         break;
     }
@@ -99,7 +174,9 @@ export default class TeamMembers extends Component {
   }
 
   render() {
-    const { formattedTeamMembers, errors, membersLength } = this.state;
+    const {
+      formattedTeamMembers, errors, membersLength, sortBy
+    } = this.state;
     return (
       <Page title="Team Members" parentPage="Users">
         <AlertBox
@@ -114,20 +191,12 @@ export default class TeamMembers extends Component {
               <div className="panel-header">
                 <div className="panel-heading">
                   <div className="col-md-1">
-                    <h4>Sort:</h4>
-                  </div>
-                  <div className="col-md-2">
-                    <select className="form-control" onChange={e => this.sort(e.target.value)}>
-                      <option value="name">Name</option>
-                      <option value="grade">Grade</option>
-                    </select>
-                  </div>
-                  <div className="col-md-1">
                     <h4>Filter:</h4>
                   </div>
                   <div className="col-md-2">
                     <select className="form-control" onChange={e => this.filter(e.target.value)}>
                       <option value="none">None</option>
+                      <option value="missingMeetings">Not Going To Meetings</option>
                       <option value="duesPaid">Dues Paid</option>
                       <option value="missingFormsDues">Missing Forms/Dues</option>
                       <option value="nothingMissing">Nothing Missing</option>
@@ -174,6 +243,7 @@ export default class TeamMembers extends Component {
                   columns={[
                     {
                       name: 'Name',
+                      sortKey: 'name',
                       specialData: 'name'
                     },
                     {
@@ -181,15 +251,18 @@ export default class TeamMembers extends Component {
                       type: 'text'
                     },
                     {
-                      name: 'Grade',
+                      name: 'STM %',
+                      key: 'subTeamMeetingsAttended',
                       type: 'text'
                     },
                     {
-                      name: 'Major',
+                      name: 'TM %',
+                      key: 'teamMeetingsAttended',
                       type: 'text'
                     },
                     {
                       name: 'Contracts (S/P/M)',
+                      sortKey: 'contracts',
                       type: 'booleanList',
                       specialData: 'contracts'
                     },
@@ -205,6 +278,8 @@ export default class TeamMembers extends Component {
                     }
                   ]}
                   data={formattedTeamMembers}
+                  handleSort={this.sort}
+                  currentSort={sortBy}
                   specialData={{
                     name: formattedTeamMembers.map(
                       member => `${member.firstName} ${member.lastName}`

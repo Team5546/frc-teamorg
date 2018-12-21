@@ -47,4 +47,4 @@ sessionsRouter.get('/:sessionId', (req, res) => {
   });
 });
 
-module.exports = { sessionsRouter, Session, findOrCreateSession };
+module.exports = { sessionsRouter, findOrCreateSession };

@@ -5,32 +5,34 @@ import '../styles/Sidemenu.scss';
 import { UserContext } from '../../UserContext';
 
 const Sidemenu = ({
-  logout, setPage, isAdmin, links
+  logout, setPage, isAdmin, links, nav
 }) => (
   <UserContext.Consumer>
     {({ user }) => (
-      <div id="sidebar-collapse" className="col-sm-3 col-lg-2 sidebar">
-        <div className="profile-sidebar">
-          <div className="profile-userpic">
-            <img
-              src={
-                user.image
-                || 'https://www.bsn.eu/wp-content/uploads/2016/12/user-icon-image-placeholder-300-grey.jpg'
-              }
-              className="img-responsive"
-              alt=""
-            />
-          </div>
-          <div className="profile-usertitle">
-            <div className="profile-usertitle-name">
-              {`${user.firstName} ${user.lastName}`}
+      <div id="sidebar-collapse" className="col-sm-3 col-lg-2 sidebar order-1">
+        {!nav && (
+          <div className="profile-sidebar">
+            <div className="profile-userpic">
+              <img
+                src={
+                  user.image
+                  || 'https://www.bsn.eu/wp-content/uploads/2016/12/user-icon-image-placeholder-300-grey.jpg'
+                }
+                className="img-responsive"
+                alt=""
+              />
             </div>
-            <div className="profile-usertitle-status">
-              {user.username}
+            <div className="profile-usertitle">
+              <div className="profile-usertitle-name">
+                {`${user.firstName} ${user.lastName}`}
+              </div>
+              <div className="profile-usertitle-status">
+                {user.username}
+              </div>
             </div>
+            <div className="clear" />
           </div>
-          <div className="clear" />
-        </div>
+        )}
         <div className="divider" />
         {/* <form role="search">
           <div className="form-group">
@@ -44,8 +46,14 @@ const Sidemenu = ({
                 return (
                   <li key={link.name || link.pageName} className="parent ">
                     <a data-toggle="collapse" href={`#${link.name || link.pageName}`}>
-                      <em className={`fa fa-${link.icon || 'ellipsis-v'}`}>
-&nbsp;
+                      <em
+                        className={
+                          link.iconBrands
+                            ? `fab fa-${link.icon}`
+                            : `fa fa-${link.icon || 'ellipsis-v'}`
+                        }
+                      >
+                        &nbsp;
                       </em>
                       {' '}
                       {link.displayName || link.pageName || link.name}
@@ -55,7 +63,7 @@ const Sidemenu = ({
                         href={`#${link.name || link.pageName}`}
                         className="icon pull-right"
                       >
-                        <em className="fa fa-plus" />
+                        <em className="fa fa fa-plus" />
                       </span>
                     </a>
                     <ul className="children collapse" id={link.name || link.pageName}>
@@ -81,8 +89,14 @@ const Sidemenu = ({
               return (
                 <li key={link.name || link.pageName}>
                   <a href="#" onClick={() => setPage(camelcase(link.name), {}, true)}>
-                    <em className={`fa fa-${link.icon || 'ellipsis-v'}`}>
-&nbsp;
+                    <em
+                      className={
+                        link.iconBrands
+                          ? `fab fa-${link.icon}`
+                          : `fa fa-${link.icon || 'ellipsis-v'}`
+                      }
+                    >
+                      &nbsp;
                     </em>
                     {' '}
                     {link.name}
@@ -93,7 +107,7 @@ const Sidemenu = ({
             return <div key={link.name} />;
           })}
           <li>
-            <a href="#" onClick={logout}>
+            <a role="button" onClick={logout}>
               <em className="fa fa-power-off">
 &nbsp;
               </em>
@@ -106,11 +120,16 @@ const Sidemenu = ({
   </UserContext.Consumer>
 );
 
+Sidemenu.defaultProps = {
+  nav: false
+};
+
 Sidemenu.propTypes = {
   logout: PropTypes.func.isRequired,
   setPage: PropTypes.func.isRequired,
   isAdmin: PropTypes.bool.isRequired,
-  links: PropTypes.array.isRequired
+  links: PropTypes.array.isRequired,
+  nav: PropTypes.bool
 };
 
 export default Sidemenu;

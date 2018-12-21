@@ -4,20 +4,39 @@ import camelcase from 'camelcase';
 import NavContext from '../../NavContext';
 
 const Table = ({
-  columns, data, controls, specialData
+  columns, data, handleSort, specialData, currentSort, sortDisabled
 }) => (
   <NavContext.Consumer>
     {({ setPage }) => (
-      <table className="table">
+      <table className="table" style={{ tableLayout: 'auto', width: '100%' }}>
         <thead>
           <tr>
             {columns.map(column => (
               <th
                 key={column.name}
                 className={column.name === 'controls' ? 'col-md-auto' : ''}
-                style={{ whiteSpace: 'nowrap', width: 'auto' }}
+                style={{ whiteSpace: 'nowrap', width: 'auto', cursor: 'pointer' }}
+                onClick={() => {
+                  if (handleSort) handleSort(column.sortKey || column.key || camelcase(column.name));
+                }}
               >
                 {column.name}
+                {column.type !== 'controls' && !sortDisabled && (
+                  <em
+                    className={`fa fa-${
+                      currentSort.substring(
+                        0,
+                        (column.sortKey || column.key || camelcase(column.name)).length
+                      ) !== (column.sortKey || column.key || camelcase(column.name))
+                        ? 'sort'
+                        : `sort-${
+                          currentSort.substring(currentSort.length - 2).toLowerCase() === 'up'
+                            ? 'up'
+                            : 'down'
+                        }`
+                    }`}
+                  />
+                )}
               </th>
             ))}
           </tr>
@@ -30,7 +49,8 @@ const Table = ({
                   key={`${column.key || camelcase(column.name)}`}
                   style={{
                     whiteSpace: 'nowrap',
-                    width: 'auto'
+                    width: 'auto',
+                    overflow: 'hidden'
                   }}
                 >
                   {specialData
@@ -93,13 +113,19 @@ const Table = ({
 );
 
 Table.defaultProps = {
-  controls: undefined
+  specialData: {},
+  handleSort: undefined,
+  currentSort: 'nameDown',
+  sortDisabled: false
 };
 
 Table.propTypes = {
   columns: PropTypes.array.isRequired,
   data: PropTypes.array.isRequired,
-  controls: PropTypes.any
+  specialData: PropTypes.object,
+  handleSort: PropTypes.func,
+  currentSort: PropTypes.string,
+  sortDisabled: PropTypes.bool
 };
 
 export default Table;

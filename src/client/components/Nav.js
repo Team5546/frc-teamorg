@@ -2,37 +2,26 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 // import './styles/Nav.scss';
 
+function getWindowWidth() {
+  return window.innerWidth;
+}
+
 export default class Nav extends Component {
   constructor() {
     super();
 
     this.state = {
-      username: '',
-      password: '',
-      firstName: '',
-      lastName: ''
+      windowWidth: getWindowWidth()
     };
-
-    this.toggleLogin = this.toggleLogin.bind(this);
-    this.handleInput = this.handleInput.bind(this);
   }
 
-  toggleLogin(type) {
-    const { showLogin } = this.state;
-    this.setState({ showLogin: !showLogin, loginType: type });
-  }
-
-  handleInput(key, event) {
-    const object = {};
-    object[key] = event.target.value;
-    this.setState(object);
+  componentDidMount() {
+    window.addEventListener('resize', () => this.setState({ windowWidth: getWindowWidth() }));
   }
 
   render() {
-    const {
-      login, signup, toggleSideMenu, showSideMenu
-    } = this.props;
-    const { loginType, showLogin } = this.state;
+    const { windowWidth } = this.state;
+    const { loggedIn, toggleSideMenu, showSideMenu } = this.props;
     return (
       <nav className="navbar navbar-custom navbar-fixed-top" role="navigation">
         <div className="container-fluid">
@@ -56,18 +45,20 @@ Toggle navigation
                 &nbsp; 5546 TEAM ORG
               </span>
             </a>
-            <ul className="nav navbar-top-links navbar-left">
-              <li className="dropdown">
-                <a
-                  className={`btn btn-sm btn-${showSideMenu ? 'primary' : 'default'}`}
-                  href="#"
-                  onClick={toggleSideMenu}
-                >
-                  <em className={`fa fa-toggle-${showSideMenu ? 'on' : 'off'}`} />
-                  {`Sidemenu ${showSideMenu ? 'On' : 'Off'}`}
-                </a>
-              </li>
-            </ul>
+            {loggedIn.username && windowWidth >= 768 && (
+              <ul className="nav navbar-top-links navbar-left">
+                <li className="dropdown">
+                  <a
+                    className={`btn btn-sm btn-${showSideMenu ? 'primary' : 'default'}`}
+                    href="#"
+                    onClick={toggleSideMenu}
+                  >
+                    <em className={`fa fa-toggle-${showSideMenu ? 'on' : 'off'}`} />
+                    {`Sidemenu ${showSideMenu ? 'On' : 'Off'}`}
+                  </a>
+                </li>
+              </ul>
+            )}
             {/* <ul className="nav navbar-top-links navbar-right">
               <li className="dropdown">
                 <a className="dropdown-toggle count-info" data-toggle="dropdown" href="#">
@@ -209,8 +200,12 @@ All Messages
   }
 }
 
+Nav.defaultProps = {
+  loggedIn: {}
+};
+
 Nav.propTypes = {
-  login: PropTypes.func.isRequired,
-  signup: PropTypes.func.isRequired,
+  loggedIn: PropTypes.object,
+  showSideMenu: PropTypes.bool.isRequired,
   toggleSideMenu: PropTypes.func.isRequired
 };

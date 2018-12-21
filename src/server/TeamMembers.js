@@ -104,6 +104,9 @@ teamMembersRouter.put('/', (req, res) => {
     medicalForm,
     studentContract,
     parentContract,
+    medicalFormPicture,
+    studentContractPicture,
+    parentContractPicture,
     duesPaid
   } = req.body;
   TeamMember.findOne(
@@ -142,6 +145,9 @@ teamMembersRouter.put('/', (req, res) => {
               medicalForm,
               studentContract,
               parentContract,
+              medicalFormPicture,
+              studentContractPicture,
+              parentContractPicture,
               duesPaid
             }
           },

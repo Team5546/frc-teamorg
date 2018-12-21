@@ -78,6 +78,9 @@ const teamMemberSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  studentContractPicture: String,
+  parentContractPicture: String,
+  medicalFormPicture: String,
   duesPaid: {
     type: Boolean,
     defualt: false
@@ -166,8 +169,7 @@ const userSchema = new mongoose.Schema({
     type: Date
   },
   lastModified: Date,
-  modifiedBy: String,
-  teamMemberId: mongoose.Schema.Types.ObjectId
+  modifiedBy: String
 });
 
 const User = db.model('User', userSchema, 'users');

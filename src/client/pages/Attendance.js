@@ -24,17 +24,17 @@ export default class Attendance extends Component {
   getMembers() {
     const { meeting, members } = this.state;
     console.log(meeting.roster);
-    for (const memberId of meeting.roster) {
+    meeting.roster.forEach((memberId) => {
       axios.get(`api/v1/teamMembers/${memberId}`).then(
         (response) => {
           members.push(response.data);
           if (meeting.attendance.length === 0) meeting.absent.push(response.data._id);
           this.setState({ members, meeting });
-          console.log(members);
+          // console.log(members);
         },
         err => console.error(err)
       );
-    }
+    });
   }
 
   setHere(memberId) {
@@ -86,6 +86,36 @@ export default class Attendance extends Component {
     return false;
   }
 
+  toggleHere(memberId) {
+    const { meeting, members } = this.state;
+    // console.log('-----------');
+    // console.log(
+    //   `Here: ${meeting.attendance.map(
+    //     i => members.filter(member => member._id === i)[0].firstName
+    //   )}`
+    // );
+    // console.log(
+    //   `Absent: ${meeting.absent.map(i => members.filter(member => member._id === i)[0].firstName)}`
+    // );
+    if (this.getHere(memberId)) {
+      meeting.attendance.splice(meeting.attendance.indexOf(memberId), 1);
+      meeting.absent.push(memberId);
+      this.setState({ meeting });
+    } else if (this.getAbsent(memberId)) {
+      meeting.absent.splice(meeting.absent.indexOf(memberId), 1);
+      meeting.attendance.push(memberId);
+      this.setState({ meeting });
+    }
+    // console.log(
+    //   `Here: ${meeting.attendance.map(
+    //     i => members.filter(member => member._id === i)[0].firstName
+    //   )}`
+    // );
+    // console.log(
+    //   `Absent: ${meeting.absent.map(i => members.filter(member => member._id === i)[0].firstName)}`
+    // );
+  }
+
   async submitAttendance() {
     const { meeting } = this.state;
     await axios.put(`api/v1/meetings/${meeting._id}`, meeting);
@@ -115,44 +145,32 @@ export default class Attendance extends Component {
                       {members
                         && members.map(member => (
                           <div
-                            className="col-sm-6 col-md-4"
+                            className="col-xs-4 col-sm-4 col-md-3"
                             key={`${member.firstName}${member.lastName}`}
                           >
-                            <div className="row">
-                              <div className="col-md-6">
+                            <dl>
+                              <dt>
                                 {`${member.firstName} ${member.lastName}`}
-                              </div>
-                              <div className="col-md-6">
-                                <div
-                                  className="btn-group btn-group-sm"
-                                  role="group"
-                                  aria-label="User Actions"
+                              </dt>
+                              <dl>
+                                <button
+                                  type="button"
+                                  className={`btn btn-sm btn-${
+                                    this.getHere(member._id) ? 'success' : 'danger'
+                                  }`}
+                                  onClick={() => this.toggleHere(member._id)}
                                 >
-                                  <button
-                                    type="button"
-                                    className={`btn btn-sm btn-success ${
-                                      this.getHere(member._id) ? 'active' : 'disabled'
+                                  <em
+                                    className={`fa fa-${
+                                      this.getHere(member._id) ? 'check' : 'times'
                                     }`}
-                                    title="Edit"
-                                    onClick={() => this.setHere(member._id)}
                                   >
-                                    <em className="fa fa-check" />
-                                    {' Here'}
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className={`btn btn-sm btn-danger ${
-                                      this.getAbsent(member._id) ? 'active' : 'disabled'
-                                    }`}
-                                    title="Delete"
-                                    onClick={() => this.setAbsent(member._id)}
-                                  >
-                                    <em className="fa fa-times" />
-                                    {' Absent'}
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
+                                    &nbsp;
+                                  </em>
+                                  {this.getHere(member._id) ? 'Here' : 'Absent'}
+                                </button>
+                              </dl>
+                            </dl>
                           </div>
                         ))}
                     </div>

@@ -3,9 +3,9 @@ import React, { Component } from 'react';
 import './styles/Users.scss';
 import axios from 'axios';
 import PropTypes from 'prop-types';
-import UserForm from '../components/UserForm';
-import UserList from '../components/UserList';
-import Page from '../components/Page';
+import UserForm from '../../components/UserForm';
+import UserList from '../../components/UserList';
+import Page from '../../components/Page';
 
 export default class Users extends Component {
   constructor() {

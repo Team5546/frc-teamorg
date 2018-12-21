@@ -1,8 +1,8 @@
 /* eslint-disable no-param-reassign */
 const express = require('express');
 const bcrypt = require('bcrypt');
-const { User } = require('./Users');
-const { Session } = require('./Sessions');
+const { User } = require('./models');
+const { Session } = require('./models');
 
 const accountsRouter = express.Router();
 
@@ -39,7 +39,7 @@ const checkAdminExists = () => {
       console.error(`DB: ${err}`);
     } else {
       console.info('DB: Admin user exists');
-      console.log(`DB: ${res}`);
+      // console.log(`DB: ${res}`);
     }
   });
 };
@@ -72,8 +72,8 @@ accountsRouter.post('/login', (req, res) => {
   User.findOne({ username: req.body.username }, (err, user) => {
     if (user && bcrypt.compareSync(req.body.password, user.password) && user.isActive) {
       findOrCreateSession(Session, user._id, (sessionId) => {
-        res.json({ sessionId, userId: user._id });
         User.findByIdAndUpdate({ _id: user._id }, { $set: { lastLogin: new Date() } });
+        res.json({ sessionId, userId: user._id });
       });
     } else {
       res.status(401).json({

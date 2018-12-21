@@ -1,6 +1,6 @@
 {
   "watch": ["src/server/"],
   "events": {
-    "restart": "lsof -ti:8080 | xargs kill"
+    "restart": "lsof -ti:8080 && lsof -ti:8080 | xargs kill"
   }
 }

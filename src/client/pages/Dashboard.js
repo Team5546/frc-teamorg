@@ -1,5 +1,6 @@
 /* eslint-disable react/no-string-refs, jsx-a11y/anchor-is-valid,
-  no-restricted-syntax, react/no-find-dom-node */
+  no-restricted-syntax, react/no-find-dom-node, jsx-a11y/click-events-have-key-events,
+  jsx-a11y/no-static-element-interactions */
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import axios from 'axios';
@@ -157,7 +158,9 @@ export default class Dashboard extends Component {
   }
 
   render() {
-    const { graphData, graphs, stats } = this.state;
+    const {
+      graphData, graphs, stats, showGraph
+    } = this.state;
     const {
       totalTeamMembers, totalFullMembers, subTeamMeetings, entireTeamMeetings
     } = stats;
@@ -252,8 +255,11 @@ Entire Team Meetings
                     </ul>
                   </li>
                 </ul>
-                <span className="pull-right clickable panel-toggle panel-button-tab-left">
-                  <em className="fa fa-toggle-up" />
+                <span
+                  className="pull-right clickable panel-toggle panel-button-tab-left"
+                  onClick={() => this.setState({ showGraph: !showGraph || false })}
+                >
+                  <em className={`fa fa-caret-square-${showGraph ? 'up' : 'down'}`} />
                 </span>
               </div>
               <div className="panel-body">

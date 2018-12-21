@@ -28,10 +28,7 @@ export default class Meetings extends Component {
   componentDidUpdate() {
     const { selectedMeeting } = this.state;
     $('#calendar').datepicker({ defaultDate: selectedMeeting.date });
-    $('.day.active').toggleClass('active');
-    $(`.day:contains(${moment(selectedMeeting.date).date()})`).toggleClass('active');
-    $('#calendar').datepicker('refresh');
-    $('#calendar').on('click', this.handleDateChange);
+    $('#calendar').on('click', () => this.handleDateChange());
   }
 
   getMeetings() {
@@ -44,6 +41,13 @@ export default class Meetings extends Component {
     const { selectedMeeting } = this.state;
     selectedMeeting.date = $('#calendar').datepicker('getDate');
     this.setState({ selectedMeeting });
+    $('#calendar').off('click');
+    $('.day.active').toggleClass('active');
+    console.log(`^${moment(selectedMeeting.date).date()}$`);
+    $(
+      `.day:not(.old):not(.new):contains(${moment(selectedMeeting.date).date()}):first`
+    ).toggleClass('active');
+    $('#calendar').on('click', () => this.handleDateChange());
   }
 
   handleChange(event) {

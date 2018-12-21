@@ -4,22 +4,24 @@ import cookie from 'react-cookies';
 import axios from 'axios';
 // Main pages
 import Landing from './pages/Landing';
-import Users from './pages/Users';
+import Users from './pages/Users/Users';
 import Dashboard from './pages/Dashboard';
 import RoboticsInterestForm from './pages/RoboticsInterestForm';
 import Subteams from './pages/Subteams';
-import MemberInfo from './pages/MemberInfo';
+import MemberInfo from './pages/Users/MemberInfo';
 import Meetings from './pages/Meetings';
 import Attendance from './pages/Attendance';
-import MemberUpload from './pages/MemberUpload';
+import MemberUpload from './pages/Users/MemberUpload';
 import Account from './pages/Account';
+import GoogleAdmin from './pages/Google/GoogleAdmin';
+import GoogleGroups from './pages/Google/GoogleGroup';
 // Components
 import Nav from './components/Nav';
 import Sidemenu from './helpers/stateless/Sidemenu';
 
 import { UserContext, defaultUser } from './UserContext';
 import AlertBox from './helpers/stateless/AlertBox';
-import TeamMembers from './pages/TeamMembers';
+import TeamMembers from './pages/Users/TeamMembers';
 import NavContext from './NavContext';
 
 export default class App extends Component {
@@ -65,6 +67,9 @@ export default class App extends Component {
     this.setState({ userContext: { ...userContext, updateUser: this.updateUser } });
     const page = cookie.load('page');
     if (page) this.setPage(page);
+    window.addEventListener('resize', () => {
+      if (window.innerWidth < 768) this.setState({ showSideMenu: true });
+    });
   }
 
   getShowSideMenu() {
@@ -107,9 +112,9 @@ export default class App extends Component {
       })
       .then(
         (response) => {
-          cookie.save('sessionId', response.data.sessionId, { path: '/' });
+          if (state.rememberMe) cookie.save('sessionId', response.data.sessionId, { path: '/' });
           this.setUser(response.data.userId);
-          this.setPage('home');
+          this.setPage('dashboard');
         },
         (err) => {
           this.setState({ errors: { message: 'An unexpected error occured' } });
@@ -177,6 +182,7 @@ export default class App extends Component {
 
     if (navContext.page === 'attendance' && !navContext.props) navContext.page = 'meetings';
     if (navContext.page === 'memberInfo' && !navContext.props) navContext.page = 'teamMembers';
+    if (navContext.page === 'googleGroup' && !navContext.props) navContext.page = 'googleAdmin';
 
     // console.log(navContext.props);
 
@@ -213,6 +219,12 @@ export default class App extends Component {
           <Account user={userContext.user} setPage={this.setPage} {...navContext.props} />
         );
         break;
+      case 'googleAdmin':
+        visiblePage = <GoogleAdmin {...navContext.props} />;
+        break;
+      case 'googleGroup':
+        visiblePage = <GoogleGroups {...navContext.props} />;
+        break;
       default:
         visiblePage = <Landing teamNum={5546} setPage={this.setPage} {...navContext.props} />;
     }
@@ -220,22 +232,28 @@ export default class App extends Component {
     return (
       <UserContext.Provider value={userContext}>
         <NavContext.Provider value={navContext}>
+          <Nav
+            loggedIn={userContext.user}
+            logout={this.logout}
+            setPage={this.setPage}
+            toggleSideMenu={this.toggleSideMenu}
+            showSideMenu={showSideMenu}
+          />
+          {errors && (
+            <div className="row">
+              <div className="col-xs-10 col-xs-offset-1">
+                <AlertBox
+                  condition={errors !== undefined}
+                  message={`${(errors && errors.message) || ''}\n${(errors && errors.username)
+                    || ''}\n${(errors && errors.password) || ''}`}
+                  close={() => this.setState({ errors: undefined })}
+                  type="danger"
+                />
+              </div>
+            </div>
+          )}
           {userContext.user._id ? (
             <React.Fragment>
-              <Nav
-                login={this.login}
-                signup={this.signup}
-                toggleSideMenu={this.toggleSideMenu}
-                showSideMenu={showSideMenu}
-              />
-              <AlertBox
-                condition={errors}
-                message={`${(errors && errors.message) || ''}\n${(errors && errors.username)
-                  || ''}\n${(errors && errors.password) || ''}`}
-                close={() => this.setState({ errors: undefined })}
-                type="danger"
-              />
-              {visiblePage}
               {showSideMenu ? (
                 <Sidemenu
                   logout={this.logout}
@@ -279,15 +297,30 @@ export default class App extends Component {
                     {
                       name: 'Account',
                       icon: 'user-circle'
-                    }
+                    },
+                    {
+                      name: 'Google',
+                      icon: 'google',
+                      requiresAdmin: true,
+                      iconBrands: true,
+                      subItems: [
+                        {
+                          name: 'Google Admin'
+                        },
+                        {
+                          name: 'Google Mail'
+                        }
+                      ]
+                    },
                   ]}
                 />
               ) : (
                 <div />
               )}
+              {visiblePage}
             </React.Fragment>
           ) : (
-            <Landing />
+            <Landing login={this.login} />
           )}
         </NavContext.Provider>
       </UserContext.Provider>

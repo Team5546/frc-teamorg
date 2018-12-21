@@ -2,9 +2,20 @@ $('#calendar').datepicker({});
 
 !(function ($) {
   $(document).on('click', 'ul.nav li.parent > a ', function () {
-    $(this)
-      .find('em')
-      .toggleClass('fa-minus');
+    if (
+      $(this)
+        .find('em:first')
+        .hasClass('fab')
+    ) {
+      $(this)
+        .find('em:first')
+        .toggleClass('fa')
+        .toggleClass('fa-minus');
+    } else {
+      $(this)
+        .find('em:first')
+        .toggleClass('fa-minus');
+    }
   });
   $('.sidebar span.icon')
     .find('em:first')
