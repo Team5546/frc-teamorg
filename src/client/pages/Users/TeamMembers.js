@@ -14,11 +14,12 @@ export default class TeamMembers extends Component {
     this.state = {
       teamMembers: [],
       formattedTeamMembers: [],
-      sortBy: 'nameDown'
+      sortBy: 'nameDown',
+      search: ''
     };
 
     this.sort = this.sort.bind(this);
-    this.updateSigninStatus = this.updateSigninStatus.bind(this);
+    this.handleSearch = this.handleSearch.bind(this);
 
     this.getTeamMembers();
   }
@@ -58,19 +59,19 @@ export default class TeamMembers extends Component {
     if (sortBy.substring(0, sort.length) !== sort) sortBy = `${sort}Up`;
     else if (sortBy.substring(sort.length) === 'Up') sortBy = `${sort}Down`;
     else sortBy = `${sort}Up`;
-    this.setState({ sortBy });
-    this.sortFilter(sortBy, undefined);
+    this.setState({ sortBy }, this.sortFilterSearch);
   }
 
   filter(filterBy) {
-    this.setState({ filterBy });
-    this.sortFilter(undefined, filterBy);
+    this.setState({ filterBy }, this.sortFilterSearch);
   }
 
-  sortFilter(sort, filter) {
-    const { teamMembers, sortBy, filterBy } = this.state;
-    const sortOption = sort || sortBy;
-    const filterOption = filter || filterBy;
+  sortFilterSearch() {
+    const {
+      teamMembers, sortBy, filterBy, search
+    } = this.state;
+    const sortOption = sortBy;
+    const filterOption = filterBy;
     // console.log(sortOption, filterOption);
     let tempMembers = teamMembers;
     switch (sortOption) {
@@ -170,12 +171,24 @@ export default class TeamMembers extends Component {
       default:
         break;
     }
+    if (search) {
+      tempMembers = tempMembers.filter(
+        member => `${member.firstName} ${member.lastName}`.toLowerCase().indexOf(search.toLowerCase())
+            > -1 || member.email.substring(0, member.email.indexOf('@')).toLowerCase().indexOf(search.toLowerCase()) > -1
+      );
+    }
+
     this.setState({ formattedTeamMembers: tempMembers, membersLength: tempMembers.length });
+  }
+
+  handleSearch(e) {
+    const { value } = e.target;
+    this.setState({ search: value }, this.sortFilterSearch);
   }
 
   render() {
     const {
-      formattedTeamMembers, errors, membersLength, sortBy
+      formattedTeamMembers, errors, membersLength, sortBy, search
     } = this.state;
     return (
       <Page title="Team Members" parentPage="Users">
@@ -190,6 +203,28 @@ export default class TeamMembers extends Component {
             <div className="panel panel-default">
               <div className="panel-header">
                 <div className="panel-heading">
+                  <div className="col-md-5">
+                    <div className="input-group">
+                      <input
+                        type="text"
+                        className="form-control"
+                        onChange={this.handleSearch}
+                        placeholder="Search by name or email..."
+                        value={search}
+                        style={{ height: '39px' }}
+                      />
+                      <div className="input-group-btn">
+                        <button
+                          type="button"
+                          className="btn btn-default"
+                          onClick={() => this.handleSearch({ target: { value: '' } })}
+                          style={{ height: '39px' }}
+                        >
+                          <em className="fa fa-times" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                   <div className="col-md-1">
                     <h4>Filter:</h4>
                   </div>
@@ -207,7 +242,7 @@ export default class TeamMembers extends Component {
                   </div>
                   <NavContext.Consumer>
                     {({ setPage }) => (
-                      <React.Fragment>
+                      <div className="col-md-2">
                         <button
                           type="button"
                           className="pull-right btn btn-md btn-default"
@@ -233,7 +268,7 @@ export default class TeamMembers extends Component {
                         >
                           <em className="fa fa-upload" />
                         </button>
-                      </React.Fragment>
+                      </div>
                     )}
                   </NavContext.Consumer>
                 </div>
@@ -280,6 +315,7 @@ export default class TeamMembers extends Component {
                   data={formattedTeamMembers}
                   handleSort={this.sort}
                   currentSort={sortBy}
+                  disabledCol="leftTeam"
                   specialData={{
                     name: formattedTeamMembers.map(
                       member => `${member.firstName} ${member.lastName}`

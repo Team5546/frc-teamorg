@@ -15,6 +15,7 @@ import MemberUpload from './pages/Users/MemberUpload';
 import Account from './pages/Account';
 import GoogleAdmin from './pages/Google/GoogleAdmin';
 import GoogleGroups from './pages/Google/GoogleGroup';
+import GoogleMail from './pages/Google/GoogleMail';
 // Components
 import Nav from './components/Nav';
 import Sidemenu from './helpers/stateless/Sidemenu';
@@ -225,6 +226,9 @@ export default class App extends Component {
       case 'googleGroup':
         visiblePage = <GoogleGroups {...navContext.props} />;
         break;
+      case 'googleMail':
+        visiblePage = <GoogleMail {...navContext.props} />;
+        break;
       default:
         visiblePage = <Landing teamNum={5546} setPage={this.setPage} {...navContext.props} />;
     }
@@ -311,7 +315,7 @@ export default class App extends Component {
                           name: 'Google Mail'
                         }
                       ]
-                    },
+                    }
                   ]}
                 />
               ) : (

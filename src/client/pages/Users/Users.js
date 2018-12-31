@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-one-expression-per-line, jsx-a11y/label-has-for */
 import React, { Component } from 'react';
-import './styles/Users.scss';
+import '../styles/Users.scss';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import UserForm from '../../components/UserForm';

@@ -1,8 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const Panel = ({ title, children, buttons }) => (
-  <div className="panel panel-default">
+const Panel = ({
+  title, type, children, buttons
+}) => (
+  <div className={`panel panel-${type || 'default'}`}>
     <div className="panel-header">
       <div className="panel-heading">
         {title}
@@ -22,12 +24,14 @@ const Panel = ({ title, children, buttons }) => (
 
 Panel.defaultProps = {
   title: null,
-  buttons: []
+  buttons: [],
+  type: 'default'
 };
 
 Panel.propTypes = {
   children: PropTypes.any.isRequired,
   title: PropTypes.string,
+  type: PropTypes.string,
   buttons: PropTypes.array
 };
 

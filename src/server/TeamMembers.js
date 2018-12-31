@@ -38,7 +38,8 @@ teamMembersRouter.post('/', (req, res) => {
     studentContract,
     parentContract,
     medicalForm,
-    duesPaid
+    duesPaid,
+    leftTeam
   } = req.body;
   TeamMember.findOne(
     {
@@ -69,7 +70,8 @@ teamMembersRouter.post('/', (req, res) => {
           studentContract: studentContract || false,
           parentContract: parentContract || false,
           medicalForm: medicalForm || false,
-          duesPaid: duesPaid || false
+          duesPaid: duesPaid || false,
+          leftTeam
         });
         console.log(create);
         create.then(() => {
@@ -107,7 +109,8 @@ teamMembersRouter.put('/', (req, res) => {
     medicalFormPicture,
     studentContractPicture,
     parentContractPicture,
-    duesPaid
+    duesPaid,
+    leftTeam
   } = req.body;
   TeamMember.findOne(
     {
@@ -148,7 +151,8 @@ teamMembersRouter.put('/', (req, res) => {
               medicalFormPicture,
               studentContractPicture,
               parentContractPicture,
-              duesPaid
+              duesPaid,
+              leftTeam
             }
           },
           (updateErr, upDoc) => {

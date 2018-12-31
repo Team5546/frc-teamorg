@@ -5,7 +5,13 @@ import camelcase from 'camelcase';
 import NavContext from '../../NavContext';
 
 const Table = ({
-  columns, data, handleSort, specialData, currentSort, sortDisabled
+  columns,
+  data,
+  handleSort,
+  specialData,
+  currentSort,
+  sortDisabled,
+  disabledCol
 }) => (
   <NavContext.Consumer>
     {({ setPage }) => (
@@ -46,7 +52,10 @@ const Table = ({
         </thead>
         <tbody>
           {data.map((entry, i) => (
-            <tr key={`entry${i}`}>
+            <tr
+              key={`entry${i}`}
+              style={{ backgroundColor: disabledCol && entry[disabledCol] ? '#eee' : undefined }}
+            >
               {columns.map(column => (
                 <td
                   key={`${column.key || camelcase(column.name)}`}
@@ -90,7 +99,9 @@ const Table = ({
                     <div className="btn-group" role="group" aria-label="Controls">
                       <button
                         type="button"
-                        className="btn btn-sm btn-warning"
+                        className={`btn btn-sm btn-warning${
+                          disabledCol && entry[disabledCol] ? ' disabled' : ''
+                        }`}
                         onClick={() => {
                           setPage(column.editPage, { teamMember: entry, editing: true });
                         }}
@@ -120,7 +131,8 @@ Table.defaultProps = {
   specialData: {},
   handleSort: undefined,
   currentSort: 'nameDown',
-  sortDisabled: false
+  sortDisabled: false,
+  disabledCol: undefined
 };
 
 Table.propTypes = {
@@ -129,7 +141,8 @@ Table.propTypes = {
   specialData: PropTypes.object,
   handleSort: PropTypes.func,
   currentSort: PropTypes.string,
-  sortDisabled: PropTypes.bool
+  sortDisabled: PropTypes.bool,
+  disabledCol: PropTypes.string
 };
 
 export default Table;

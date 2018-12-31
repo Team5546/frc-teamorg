@@ -235,11 +235,11 @@ input.form-control {
   margin-right: 15px;
 }
 
-.nav > li > a:hover,
-.nav > li > a:focus,
-.nav .open > a,
-.nav .open > a:hover,
-.nav .open > a:focus {
+.nav li a:hover,
+.nav li a:focus,
+.nav .open a,
+.nav .open a:hover,
+.nav .open a:focus {
   text-decoration: none;
   background-color: rgba(255, 255, 255, 0.2);
   background: none;
@@ -272,7 +272,7 @@ input.form-control {
   margin: 0 5px;
 }
 
-.dropdown-menu > li > a {
+.dropdown-menu li a {
   padding: 5px 10px;
 }
 
@@ -323,7 +323,7 @@ button:active {
 .btn-default:focus,
 .btn-default:active,
 .btn-default.active,
-.open > .dropdown-toggle.btn-default,
+.open .dropdown-toggle.btn-default,
 .btn-default.disabled,
 .btn-default[disabled],
 fieldset[disabled] .btn-default,
@@ -349,7 +349,7 @@ fieldset[disabled] .btn-default.active {
 .btn-primary:focus,
 .btn-primary:active,
 .btn-primary.active,
-.open > .dropdown-toggle.btn-primary,
+.open .dropdown-toggle.btn-primary,
 .btn-primary.disabled,
 .btn-primary[disabled],
 fieldset[disabled] .btn-primary,
@@ -374,7 +374,7 @@ fieldset[disabled] .btn-primary.active {
 .btn-success:focus,
 .btn-success:active,
 .btn-success.active,
-.open > .dropdown-toggle.btn-success,
+.open .dropdown-toggle.btn-success,
 .btn-success.disabled,
 .btn-success[disabled],
 fieldset[disabled] .btn-success,
@@ -399,7 +399,7 @@ fieldset[disabled] .btn-success.active {
 .btn-warning:focus,
 .btn-warning:active,
 .btn-warning.active,
-.open > .dropdown-toggle.btn-warning,
+.open .dropdown-toggle.btn-warning,
 .btn-warning.disabled,
 .btn-warning[disabled],
 fieldset[disabled] .btn-warning,
@@ -424,7 +424,7 @@ fieldset[disabled] .btn-warning.active {
 .btn-danger:focus,
 .btn-danger:active,
 .btn-danger.active,
-.open > .dropdown-toggle.btn-danger,
+.open .dropdown-toggle.btn-danger,
 .btn-danger.disabled,
 .btn-danger[disabled],
 fieldset[disabled] .btn-danger,
@@ -629,31 +629,31 @@ a.label:focus {
   font-size: 17px;
 }
 
-.panel-primary > .panel-heading {
+.panel-primary .panel-heading {
   background-color: #30a5ff;
   color: #fff;
   border: none;
 }
 
-.panel-success > .panel-heading {
+.panel-success .panel-heading {
   background-color: #8ad919;
   color: #fff;
   border: none;
 }
 
-.panel-info > .panel-heading {
+.panel-info .panel-heading {
   background-color: #30a5ff;
   color: #fff;
   border: none;
 }
 
-.panel-warning > .panel-heading {
+.panel-warning .panel-heading {
   background-color: #ffb53e;
   color: #fff;
   border: none;
 }
 
-.panel-danger > .panel-heading {
+.panel-danger .panel-heading {
   background-color: #f9243f;
   color: #fff;
   border: none;
@@ -759,8 +759,8 @@ a.label:focus {
   margin: 0 -5px;
 }
 
-.panel-footer .input-group-btn:last-child > .btn,
-.panel-footer .input-group-btn:last-child > .btn-group {
+.panel-footer .input-group-btn:last-child .btn,
+.panel-footer .input-group-btn:last-child .btn-group {
   margin: 0;
 }
 
@@ -949,22 +949,22 @@ a.label:focus {
   margin-right: -1.5px;
 }
 
-.timeline > li {
+.timeline li {
   margin-bottom: 20px;
   position: relative;
 }
 
-.timeline > li:before,
-.timeline > li:after {
+.timeline li:before,
+.timeline li:after {
   content: " ";
   display: table;
 }
 
-.timeline > li:after {
+.timeline li:after {
   clear: both;
 }
 
-.timeline > li > .timeline-panel {
+.timeline li .timeline-panel {
   width: calc(100% - 65px);
   float: right;
   border: 1px solid #edeeed;
@@ -974,7 +974,7 @@ a.label:focus {
   box-shadow: none;
 }
 
-.timeline > li > .timeline-panel:before {
+.timeline li .timeline-panel:before {
   position: absolute;
   top: 26px;
   left: -11px;
@@ -986,7 +986,7 @@ a.label:focus {
   content: " ";
 }
 
-.timeline > li > .timeline-panel:after {
+.timeline li .timeline-panel:after {
   position: absolute;
   top: 27px;
   left: -10px;
@@ -998,7 +998,7 @@ a.label:focus {
   content: " ";
 }
 
-.timeline > li > .timeline-badge {
+.timeline li .timeline-badge {
   color: #fff;
   width: 46px;
   height: 46px;
@@ -1226,9 +1226,9 @@ a.label:focus {
 
 .sidebar ul.nav .active a,
 .sidebar ul.nav li.parent a.active,
-.sidebar ul.nav .active > a:hover,
+.sidebar ul.nav .active a:hover,
 .sidebar ul.nav li.parent a.active:hover,
-.sidebar ul.nav .active > a:focus,
+.sidebar ul.nav .active a:focus,
 .sidebar ul.nav li.parent a.active:focus {
   color: #fff;
   background-color: #30a5ff;
@@ -1539,7 +1539,7 @@ a.todo-list-item:focus {
   border-right: none;
 }
 
-.table > thead > tr > th {
+.table thead tr th {
   border-bottom: 1px solid #e6e7e8;
   vertical-align: middle;
   height: 50px;

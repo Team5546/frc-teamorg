@@ -29,12 +29,14 @@ export default class Subteams extends Component {
   getMembers() {
     axios.get('/api/v1/teamMembers').then((response) => {
       const members = {};
-      response.data.map(entry => entry.subTeams.map((subTeam) => {
-        if (!members[subTeam]) {
-          members[subTeam] = [];
-        }
-        return members[subTeam].push(entry);
-      }));
+      response.data
+        .filter(entry => !entry.leftTeam)
+        .map(entry => entry.subTeams.map((subTeam) => {
+          if (!members[subTeam]) {
+            members[subTeam] = [];
+          }
+          return members[subTeam].push(entry);
+        }));
       console.log(members);
       this.setState({ members });
     });

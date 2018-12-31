@@ -126,7 +126,8 @@ const teamMemberSchema = new mongoose.Schema({
   teamMeetingsAttended: {
     type: Number,
     default: 0
-  }
+  },
+  leftTeam: Boolean
 });
 
 const TeamMember = db.model('TeamMember', teamMemberSchema);

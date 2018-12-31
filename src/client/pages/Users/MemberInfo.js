@@ -10,6 +10,7 @@ import ReactFileReader from 'react-file-reader';
 import Page from '../../components/Page';
 import NavContext from '../../NavContext';
 import AlertBox from '../../helpers/stateless/AlertBox';
+import Panel from '../../helpers/stateless/Panel';
 
 function base64MimeType(encoded) {
   let result = null;
@@ -44,6 +45,7 @@ export default class MemberInfo extends Component {
     this.saveChanges = this.saveChanges.bind(this);
     this.parseFile = this.parseFile.bind(this);
     this.removePicture = this.removePicture.bind(this);
+    this.toggleTeamStatus = this.toggleTeamStatus.bind(this);
   }
 
   updateForms(field) {
@@ -94,6 +96,21 @@ export default class MemberInfo extends Component {
     this.setState({ teamMember, fileNames });
   }
 
+  toggleTeamStatus() {
+    const { teamMember, errors } = this.state;
+    axios
+      .put('/api/v1/teamMembers', {
+        ...teamMember,
+        leftTeam: !teamMember.leftTeam
+      })
+      .then(() => this.setState({
+        teamMember: {
+          ...teamMember,
+          leftTeam: !teamMember.leftTeam
+        }
+      }), err => this.setState({ errors: { ...errors, ...err.response.data.errors } }));
+  }
+
   render() {
     const {
       teamMember, saving, success, errors, fileNames
@@ -126,6 +143,20 @@ export default class MemberInfo extends Component {
                   <em className="fa fa-angle-left" />
                 </button>
               </div>
+              {teamMember && (
+                <div className="col-md-2 pull-right">
+                  <button
+                    type="button"
+                    className="btn btn-small btn-default pull-right"
+                    onClick={this.toggleTeamStatus}
+                  >
+                    <em className={`fa fa-sign-${teamMember.leftTeam ? 'in' : 'out'}-alt`}>
+                      &nbsp;
+                    </em>
+                    {teamMember.leftTeam ? 'Rejoin Team' : 'Leave Team'}
+                  </button>
+                </div>
+              )}
             </div>
             <hr />
             {teamMember ? (
@@ -180,358 +211,341 @@ Sub Teams
                     </div>
                   </div>
                   <div className="col-md-4">
-                    <div className="panel panel-default">
-                      <div className="panel-heading">
-Parent Info
-                      </div>
-                      <div className="panel-body">
-                        {teamMember.parents.map(parent => (
-                          <dl key={`${parent.firstName}-${parent.lastName}`}>
-                            <h4>
-                              {`${parent.firstName} ${parent.lastName}`}
-                            </h4>
-                            <dt>
+                    <Panel title="Parent Info">
+                      {teamMember.parents.map(parent => (
+                        <dl key={`${parent.firstName}-${parent.lastName}`}>
+                          <h4>
+                            {`${parent.firstName} ${parent.lastName}`}
+                          </h4>
+                          <dt>
 Phone
-                            </dt>
-                            <dd>
-                              {`${phoneFormat.format(parent.phone, '(NNN) NNN-NNNN')}`}
-                            </dd>
-                            <dt>
+                          </dt>
+                          <dd>
+                            {`${phoneFormat.format(parent.phone, '(NNN) NNN-NNNN')}`}
+                          </dd>
+                          <dt>
 Email
-                            </dt>
-                            <dd>
-                              {`${parent.email}`}
-                            </dd>
-                          </dl>
-                        ))}
-                      </div>
-                    </div>
+                          </dt>
+                          <dd>
+                            {`${parent.email}`}
+                          </dd>
+                        </dl>
+                      ))}
+                    </Panel>
                   </div>
                   <div className="col-md-4">
-                    <div className="panel panel-default">
-                      <div className="panel-heading">
-Update Form/Dues Status
-                      </div>
-                      <div className="panel-body">
-                        <div className="row">
-                          <div className="col-xs-12 col-md-6">
-                            <h5>
+                    <Panel title="Update Form/Dues Status">
+                      <div className="row">
+                        <div className="col-xs-12 col-md-6">
+                          <h5>
 Student Contract
-                            </h5>
-                            <button
-                              type="button"
-                              className={`btn btn-sm ${
-                                teamMember.studentContract ? 'btn-success' : 'btn-danger'
-                              }`}
-                              onClick={() => this.updateForms('studentContract')}
-                            >
-                              <em
-                                className={`fa fa-${
-                                  teamMember.studentContract ? 'check' : 'times'
-                                }`}
+                          </h5>
+                          <button
+                            type="button"
+                            className={`btn btn-sm ${
+                              teamMember.studentContract ? 'btn-success' : 'btn-danger'
+                            }`}
+                            onClick={() => this.updateForms('studentContract')}
+                          >
+                            <em
+                              className={`fa fa-${teamMember.studentContract ? 'check' : 'times'}`}
+                            />
+                            {' Student Contract'}
+                          </button>
+                        </div>
+                        <div className="col-xs-12 col-md-6">
+                          <h6>
+                            <em>
+                              Picture
+                              {teamMember.studentContractPicture && (
+                                <a
+                                  role="button"
+                                  onClick={() => {
+                                    const win = window.open();
+                                    win.document.write(
+                                      `<iframe src="${
+                                        teamMember.studentContractPicture
+                                      }" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`
+                                    );
+                                  }}
+                                >
+                                  {' - '}
+                                  View Image
+                                </a>
+                              )}
+                              {fileNames.studentContract && (
+                                <p style={{ overflow: 'hidden' }}>
+                                  {fileNames.studentContract}
+                                </p>
+                              )}
+                            </em>
+                          </h6>
+                          {teamMember.studentContractPicture ? (
+                            base64MimeType(teamMember.studentContractPicture)
+                            === 'application/pdf' ? (
+                              <embed
+                                width="100%"
+                                height="100px"
+                                name="plugin"
+                                src={teamMember.studentContractPicture}
+                                type="application/pdf"
                               />
-                              {' Student Contract'}
-                            </button>
-                          </div>
-                          <div className="col-xs-12 col-md-6">
-                            <h6>
-                              <em>
-                                Picture
-                                {teamMember.studentContractPicture && (
-                                  <a
-                                    role="button"
-                                    onClick={() => {
-                                      const win = window.open();
-                                      win.document.write(
-                                        `<iframe src="${
-                                          teamMember.studentContractPicture
-                                        }" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`
-                                      );
-                                    }}
-                                  >
-                                    {' - '}
-                                    View Image
-                                  </a>
-                                )}
-                                {fileNames.studentContract && (
-                                  <p style={{ overflow: 'hidden' }}>
-                                    {fileNames.studentContract}
-                                  </p>
-                                )}
-                              </em>
-                            </h6>
-                            {teamMember.studentContractPicture ? (
-                              base64MimeType(teamMember.studentContractPicture)
-                              === 'application/pdf' ? (
-                                <embed
-                                  width="100%"
-                                  height="200px"
-                                  name="plugin"
+                              ) : (
+                                <img
                                   src={teamMember.studentContractPicture}
-                                  type="application/pdf"
+                                  width="100%"
+                                  alt="Student Contract"
+                                  style={{ marginBottom: '5px' }}
                                 />
-                                ) : (
-                                  <img
-                                    src={teamMember.studentContractPicture}
-                                    width="100%"
-                                    alt="Student Contract"
-                                    style={{ marginBottom: '5px' }}
-                                  />
-                                )
-                            ) : (
-                              <p>
-                                <em>
+                              )
+                          ) : (
+                            <p>
+                              <em>
 No file uploaded. (pdf, image files)
-                                </em>
-                              </p>
-                            )}
-                            {!teamMember.studentContractPicture ? (
-                              <ReactFileReader
-                                base64
-                                fileTypes={['image/*', 'application/pdf']}
-                                handleFiles={files => this.parseFile('studentContract', files)}
-                              >
-                                <button
-                                  type="button"
-                                  className="btn btn-sm btn-info"
-                                  style={{ width: '100%' }}
-                                >
-                                  Upload
-                                </button>
-                              </ReactFileReader>
-                            ) : (
+                              </em>
+                            </p>
+                          )}
+                          {!teamMember.studentContractPicture ? (
+                            <ReactFileReader
+                              base64
+                              fileTypes={['image/*', 'application/pdf']}
+                              handleFiles={files => this.parseFile('studentContract', files)}
+                            >
                               <button
                                 type="button"
-                                className="btn btn-sm btn-danger"
-                                onClick={() => this.removePicture('studentContract')}
+                                className="btn btn-sm btn-info"
                                 style={{ width: '100%' }}
                               >
-                                Remove
+                                Upload
                               </button>
-                            )}
-                          </div>
-                          <div className="col-xs-12 col-md-6">
-                            <h5>
+                            </ReactFileReader>
+                          ) : (
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-danger"
+                              onClick={() => this.removePicture('studentContract')}
+                              style={{ width: '100%' }}
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </div>
+                        <div className="col-xs-12 col-md-6">
+                          <h5>
 Parent Contract
-                            </h5>
-                            <button
-                              type="button"
-                              id="parentContract"
-                              className={`btn btn-sm ${
-                                teamMember.parentContract ? 'btn-success' : 'btn-danger'
-                              }`}
-                              onClick={() => this.updateForms('parentContract')}
-                            >
-                              <em
-                                className={`fa fa-${teamMember.parentContract ? 'check' : 'times'}`}
+                          </h5>
+                          <button
+                            type="button"
+                            id="parentContract"
+                            className={`btn btn-sm ${
+                              teamMember.parentContract ? 'btn-success' : 'btn-danger'
+                            }`}
+                            onClick={() => this.updateForms('parentContract')}
+                          >
+                            <em
+                              className={`fa fa-${teamMember.parentContract ? 'check' : 'times'}`}
+                            />
+                            {' Parent Contract'}
+                          </button>
+                        </div>
+                        <div className="col-xs-12 col-md-6">
+                          <h6>
+                            <em>
+                              Picture
+                              {teamMember.parentContractPicture && (
+                                <a
+                                  role="button"
+                                  onClick={() => {
+                                    const win = window.open();
+                                    win.document.write(
+                                      `<iframe src="${
+                                        teamMember.parentContractPicture
+                                      }" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`
+                                    );
+                                  }}
+                                >
+                                  {' - '}
+                                  View Image
+                                </a>
+                              )}
+                              {fileNames.parentContract && (
+                                <p style={{ overflow: 'hidden' }}>
+                                  {fileNames.parentContract}
+                                </p>
+                              )}
+                            </em>
+                          </h6>
+                          {teamMember.parentContractPicture ? (
+                            base64MimeType(teamMember.parentContractPicture)
+                            === 'application/pdf' ? (
+                              <embed
+                                width="100%"
+                                height="100px"
+                                name="plugin"
+                                src={teamMember.parentContractPicture}
+                                type="application/pdf"
                               />
-                              {' Parent Contract'}
-                            </button>
-                          </div>
-                          <div className="col-xs-12 col-md-6">
-                            <h6>
-                              <em>
-                                Picture
-                                {teamMember.parentContractPicture && (
-                                  <a
-                                    role="button"
-                                    onClick={() => {
-                                      const win = window.open();
-                                      win.document.write(
-                                        `<iframe src="${
-                                          teamMember.parentContractPicture
-                                        }" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`
-                                      );
-                                    }}
-                                  >
-                                    {' - '}
-                                    View Image
-                                  </a>
-                                )}
-                                {fileNames.parentContract && (
-                                  <p style={{ overflow: 'hidden' }}>
-                                    {fileNames.parentContract}
-                                  </p>
-                                )}
-                              </em>
-                            </h6>
-                            {teamMember.parentContractPicture ? (
-                              base64MimeType(teamMember.parentContractPicture)
-                              === 'application/pdf' ? (
-                                <embed
-                                  width="100%"
-                                  height="200px"
-                                  name="plugin"
+                              ) : (
+                                <img
                                   src={teamMember.parentContractPicture}
-                                  type="application/pdf"
-                                />
-                                ) : (
-                                  <img
-                                    src={teamMember.parentContractPicture}
-                                    width="100%"
-                                    alt="Student Contract"
-                                    style={{ marginBottom: '5px' }}
-                                  />
-                                )
-                            ) : (
-                              <p>
-                                <em>
-No file uploaded. (pdf, image files)
-                                </em>
-                              </p>
-                            )}
-                            {!teamMember.parentContractPicture ? (
-                              <ReactFileReader
-                                base64
-                                fileTypes={['image/*', 'application/pdf']}
-                                handleFiles={files => this.parseFile('parentContract', files)}
-                              >
-                                <button
-                                  type="button"
-                                  className="btn btn-sm btn-info"
-                                  style={{ width: '100%' }}
-                                >
-                                  Upload
-                                </button>
-                              </ReactFileReader>
-                            ) : (
-                              <button
-                                type="button"
-                                className="btn btn-sm btn-danger"
-                                onClick={() => this.removePicture('parentContract')}
-                                style={{ width: '100%' }}
-                              >
-                                Remove
-                              </button>
-                            )}
-                          </div>
-                          <div className="col-xs-12 col-md-6">
-                            <h5>
-Medical Form
-                            </h5>
-                            <button
-                              type="button"
-                              id="medicalForm"
-                              className={`btn btn-sm ${
-                                teamMember.medicalForm ? 'btn-success' : 'btn-danger'
-                              }`}
-                              onClick={() => this.updateForms('medicalForm')}
-                            >
-                              <em
-                                className={`fa fa-${teamMember.medicalForm ? 'check' : 'times'}`}
-                              />
-                              {' Medical Form'}
-                            </button>
-                          </div>
-                          <div className="col-xs-12 col-md-6">
-                            <h6>
-                              <em>
-                                Picture
-                                {teamMember.medicalFormPicture && (
-                                  <a
-                                    role="button"
-                                    onClick={() => {
-                                      const win = window.open();
-                                      win.document.write(
-                                        `<iframe src="${
-                                          teamMember.medicalFormPicture
-                                        }" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`
-                                      );
-                                    }}
-                                  >
-                                    {' - '}
-                                    View Image
-                                  </a>
-                                )}
-                                {fileNames.medicalForm && (
-                                  <p style={{ overflow: 'hidden' }}>
-                                    {fileNames.medicalForm}
-                                  </p>
-                                )}
-                              </em>
-                            </h6>
-                            {teamMember.medicalFormPicture ? (
-                              base64MimeType(teamMember.medicalFormPicture)
-                              === 'application/pdf' ? (
-                                <embed
                                   width="100%"
-                                  height="200px"
-                                  name="plugin"
-                                  src={teamMember.medicalFormPicture}
-                                  type="application/pdf"
+                                  alt="Student Contract"
+                                  style={{ marginBottom: '5px' }}
                                 />
-                                ) : (
-                                  <img
-                                    src={teamMember.medicalFormPicture}
-                                    width="100%"
-                                    alt="Student Contract"
-                                    style={{ marginBottom: '5px' }}
-                                  />
-                                )
-                            ) : (
-                              <p>
-                                <em>
+                              )
+                          ) : (
+                            <p>
+                              <em>
 No file uploaded. (pdf, image files)
-                                </em>
-                              </p>
-                            )}
-                            {!teamMember.medicalFormPicture ? (
-                              <ReactFileReader
-                                base64
-                                fileTypes={['image/*', 'application/pdf']}
-                                handleFiles={files => this.parseFile('medicalForm', files)}
-                              >
-                                <button
-                                  type="button"
-                                  className="btn btn-sm btn-info"
-                                  style={{ width: '100%' }}
-                                >
-                                  Upload
-                                </button>
-                              </ReactFileReader>
-                            ) : (
+                              </em>
+                            </p>
+                          )}
+                          {!teamMember.parentContractPicture ? (
+                            <ReactFileReader
+                              base64
+                              fileTypes={['image/*', 'application/pdf']}
+                              handleFiles={files => this.parseFile('parentContract', files)}
+                            >
                               <button
                                 type="button"
-                                className="btn btn-sm btn-danger"
-                                onClick={() => this.removePicture('medicalForm')}
+                                className="btn btn-sm btn-info"
                                 style={{ width: '100%' }}
                               >
-                                Remove
+                                Upload
                               </button>
-                            )}
-                          </div>
-                          <div className="col-xs-12">
-                            <h5>
+                            </ReactFileReader>
+                          ) : (
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-danger"
+                              onClick={() => this.removePicture('parentContract')}
+                              style={{ width: '100%' }}
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </div>
+                        <div className="col-xs-12 col-md-6">
+                          <h5>
+Medical Form
+                          </h5>
+                          <button
+                            type="button"
+                            id="medicalForm"
+                            className={`btn btn-sm ${
+                              teamMember.medicalForm ? 'btn-success' : 'btn-danger'
+                            }`}
+                            onClick={() => this.updateForms('medicalForm')}
+                          >
+                            <em className={`fa fa-${teamMember.medicalForm ? 'check' : 'times'}`} />
+                            {' Medical Form'}
+                          </button>
+                        </div>
+                        <div className="col-xs-12 col-md-6">
+                          <h6>
+                            <em>
+                              Picture
+                              {teamMember.medicalFormPicture && (
+                                <a
+                                  role="button"
+                                  onClick={() => {
+                                    const win = window.open();
+                                    win.document.write(
+                                      `<iframe src="${
+                                        teamMember.medicalFormPicture
+                                      }" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`
+                                    );
+                                  }}
+                                >
+                                  {' - '}
+                                  View Image
+                                </a>
+                              )}
+                              {fileNames.medicalForm && (
+                                <p style={{ overflow: 'hidden' }}>
+                                  {fileNames.medicalForm}
+                                </p>
+                              )}
+                            </em>
+                          </h6>
+                          {teamMember.medicalFormPicture ? (
+                            base64MimeType(teamMember.medicalFormPicture) === 'application/pdf' ? (
+                              <embed
+                                width="100%"
+                                height="100px"
+                                name="plugin"
+                                src={teamMember.medicalFormPicture}
+                                type="application/pdf"
+                              />
+                            ) : (
+                              <img
+                                src={teamMember.medicalFormPicture}
+                                width="100%"
+                                alt="Student Contract"
+                                style={{ marginBottom: '5px' }}
+                              />
+                            )
+                          ) : (
+                            <p>
+                              <em>
+No file uploaded. (pdf, image files)
+                              </em>
+                            </p>
+                          )}
+                          {!teamMember.medicalFormPicture ? (
+                            <ReactFileReader
+                              base64
+                              fileTypes={['image/*', 'application/pdf']}
+                              handleFiles={files => this.parseFile('medicalForm', files)}
+                            >
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-info"
+                                style={{ width: '100%' }}
+                              >
+                                Upload
+                              </button>
+                            </ReactFileReader>
+                          ) : (
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-danger"
+                              onClick={() => this.removePicture('medicalForm')}
+                              style={{ width: '100%' }}
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </div>
+                        <div className="col-xs-12">
+                          <h5>
 Dues
-                            </h5>
-                            <button
-                              type="button"
-                              id="medicalForm"
-                              className={`btn btn-sm ${
-                                teamMember.duesPaid ? 'btn-success' : 'btn-danger'
-                              }`}
-                              onClick={() => this.updateForms('duesPaid')}
-                            >
-                              <em className="fa fa-money-bill" />
-                              {' Dues Paid'}
-                            </button>
-                            <hr />
-                            <button
-                              type="button"
-                              id="medicalForm"
-                              className="btn btn-sm btn-info"
-                              onClick={this.saveChanges}
-                            >
-                              <em className={`fa fa-${saving ? 'spinner' : 'save'}`} />
-                              {saving ? ' Saving Changes' : ' Save Changes'}
-                            </button>
-                          </div>
+                          </h5>
+                          <button
+                            type="button"
+                            id="medicalForm"
+                            className={`btn btn-sm ${
+                              teamMember.duesPaid ? 'btn-success' : 'btn-danger'
+                            }`}
+                            onClick={() => this.updateForms('duesPaid')}
+                          >
+                            <em className="fa fa-money-bill" />
+                            {' Dues Paid'}
+                          </button>
+                          <hr />
+                          <button
+                            type="button"
+                            id="medicalForm"
+                            className="btn btn-sm btn-info"
+                            onClick={this.saveChanges}
+                          >
+                            <em className={`fa fa-${saving ? 'spinner' : 'save'}`} />
+                            {saving ? ' Saving Changes' : ' Save Changes'}
+                          </button>
                         </div>
                       </div>
-                    </div>
+                    </Panel>
                   </div>
-                </div>
-                <div className="row">
                   <div className="col-md-4">
                     <div className="panel panel-default">
                       <div className="panel-heading">
