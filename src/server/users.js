@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 const express = require('express');
-const { User } = require('./models');
+const { User } = require('./models.js');
 
 const userRouter = express.Router();
 

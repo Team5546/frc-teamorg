@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 const express = require('express');
 const randomString = require('random-base64-string');
-const { Session } = require('./models');
+const { Session } = require('./models.js');
 
 const sessionsRouter = express.Router();
 

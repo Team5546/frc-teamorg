@@ -1,8 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable array-callback-return */
 const express = require('express');
-
-const { TeamMember } = require('./models');
+const { TeamMember } = require('./models.js');
 
 const teamMembersRouter = express.Router();
 

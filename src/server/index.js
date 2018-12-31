@@ -1,12 +1,12 @@
 /* eslint-disable no-param-reassign */
 const express = require('express');
 const db = require('./db');
-const { userRouter } = require('./Users');
-const { accountsRouter, checkAdminExists } = require('./Accounts');
-const { sessionsRouter } = require('./Sessions');
-const { teamMembersRouter } = require('./TeamMembers');
-const { meetingsRouter } = require('./Meetings');
-const { googleRouter } = require('./Google');
+const { userRouter } = require('./Users.js');
+const { accountsRouter, checkAdminExists } = require('./Accounts.js');
+const { sessionsRouter } = require('./Sessions.js');
+const { teamMembersRouter } = require('./TeamMembers.js');
+const { meetingsRouter } = require('./Meetings.js');
+const { googleRouter } = require('./Google.js');
 
 // mongoose.set('debug', true);
 

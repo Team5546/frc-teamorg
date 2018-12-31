@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const db = require('./db');
+const db = require('./db.js');
 
 const meetingSchema = new mongoose.Schema({
   date: {

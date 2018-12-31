@@ -1,5 +1,5 @@
 const schedule = require('node-schedule');
-const { oauth2client } = require('./Google');
+const { oauth2client } = require('./Google.js');
 
 const emailMembersMissingFormsOrDuesRule = schedule.RecurrenceRule();
 emailMembersMissingFormsOrDuesRule.day = 0;

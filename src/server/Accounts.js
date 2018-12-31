@@ -1,8 +1,7 @@
 /* eslint-disable no-param-reassign */
 const express = require('express');
 const bcrypt = require('bcrypt');
-const { User } = require('./models');
-const { Session } = require('./models');
+const { User, Session } = require('./models.js');
 
 const accountsRouter = express.Router();
 
