@@ -7,6 +7,7 @@ import Page from '../components/Page';
 import AlertBox from '../helpers/stateless/AlertBox';
 import MeetingForm from '../components/MeetingForm';
 import NavContext from '../NavContext';
+import Panel from '../helpers/stateless/Panel';
 
 const { $ } = window;
 
@@ -32,7 +33,7 @@ export default class Meetings extends Component {
   }
 
   getMeetings() {
-    axios.get('/api/v1/meetings').then((response) => {
+    axios.get('/api/v1/meetings').then(response => {
       this.setState({ meetings: response.data });
     });
   }
@@ -115,9 +116,7 @@ export default class Meetings extends Component {
   }
 
   render() {
-    const {
-      meetings, errors, showForm, selectedMeeting
-    } = this.state;
+    const { meetings, errors, showForm, selectedMeeting } = this.state;
     return (
       <Page title="Meetings">
         <AlertBox
@@ -127,144 +126,157 @@ export default class Meetings extends Component {
           close={() => this.setState({ errors: {} })}
         />
         <div className="row">
-          <div className="col-lg-12">
-            <div className="panel panel-default">
-              <div className="panel-header">
-                <div className="panel-heading">
-                  <button
-                    type="button"
-                    className="pull-right btn btn-md btn-default"
-                    onClick={() => this.setState({
+          <div className="col">
+            <Panel
+              title={
+                showForm ? (
+                  <React.Fragment>
+                    <em className="fa fa-calendar" />
+                    {` - ${selectedMeeting._id ? 'Editing' : 'Adding'} ${moment(
+                      selectedMeeting.date
+                    ).format('MM/DD/YY')} ${
+                      selectedMeeting.subTeams.length === 6
+                        ? 'Entire Team Meeting'
+                        : `${selectedMeeting.subTeams
+                            .map(
+                              team => `${team.substring(0, 1).toUpperCase()}${team.substring(1)}`
+                            )
+                            .join(', ')} Meeting`
+                    }`}
+                  </React.Fragment>
+                ) : (
+                  undefined
+                )
+              }
+              buttons={[
+                {
+                  type: 'default',
+                  func: () =>
+                    this.setState({
                       selectedMeeting: { date: new Date(), subTeams: [] },
                       showForm: true
-                    })
-                    }
-                  >
-                    <em className="fa fa-plus" />
-                  </button>
-                </div>
-              </div>
-              <div className="panel-body">
-                {!showForm && (
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <td>Date</td>
-                        <td>Sub Teams</td>
-                        <td>Past?</td>
-                        <td />
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {meetings.map((meeting, index) => (
-                        <tr key={moment(meeting.date).format('MMDDYY') + meeting.subTeams.join('')}>
-                          <td>{moment(meeting.date).format('MM/DD/YY')}</td>
-                          <td>
-                            {meeting.subTeams.length === 6
-                              ? 'Entire Team'
-                              : meeting.subTeams
-                                .map(
-                                  team => team.substring(0, 1).toUpperCase() + team.substring(1)
-                                )
+                    }),
+                  icon: 'plus'
+                }
+              ]}
+            >
+              {!showForm && (
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <td>Date</td>
+                      <td>Sub Teams</td>
+                      <td>Past?</td>
+                      <td />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {meetings.map((meeting, index) => (
+                      <tr key={moment(meeting.date).format('MMDDYY') + meeting.subTeams.join('')}>
+                        <td>{moment(meeting.date).format('MM/DD/YY')}</td>
+                        <td>
+                          {meeting.subTeams.length === 6
+                            ? 'Entire Team'
+                            : meeting.subTeams
+                                .map(team => team.substring(0, 1).toUpperCase() + team.substring(1))
                                 .join(', ')}
-                          </td>
-                          <td>
-                            {moment().isAfter(meeting.date) ? (
-                              <em className="fa fa-check text-success" />
-                            ) : (
-                              <em className="fa fa-times text-danger" />
-                            )}
-                          </td>
-                          <td>
-                            {!meeting.reallySure ? (
-                              <div
-                                className="btn-group btn-group-sm"
-                                role="group"
-                                aria-label="User Actions"
+                        </td>
+                        <td>
+                          {moment().isAfter(meeting.date) ? (
+                            <em className="fa fa-check text-success" />
+                          ) : (
+                            <em className="fa fa-times text-danger" />
+                          )}
+                        </td>
+                        <td>
+                          {!meeting.reallySure ? (
+                            <div
+                              className="btn-group btn-group-sm"
+                              role="group"
+                              aria-label="User Actions"
+                            >
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-warning"
+                                title="Edit"
+                                onClick={() => this.edit(index)}
                               >
-                                <button
-                                  type="button"
-                                  className="btn btn-sm btn-warning"
-                                  title="Edit"
-                                  onClick={() => this.edit(index)}
-                                >
-                                  <em className="fa fa-pencil-alt" />
-                                </button>
-                                <NavContext.Consumer>
-                                  {({ setPage }) => (
-                                    <button
-                                      type="button"
-                                      className={`btn btn-sm btn-info ${
-                                        moment(new Date()).isBefore(meeting.date) ? 'hidden' : ''
-                                      }`}
-                                      title="Edit"
-                                      onClick={() => setPage('attendance', { meeting })}
-                                    >
-                                      <em className="fa fa-clipboard-list" />
-                                    </button>
-                                  )}
-                                </NavContext.Consumer>
-                                {meeting.attendance.length === 0
-                                  && !moment(new Date()).isAfter(meeting.date) && (
-                                    <button
-                                      type="button"
-                                      className="btn btn-danger"
-                                      title="Delete"
-                                      onClick={() => this.delete(index)}
-                                    >
-                                      <em className="fa fa-trash" />
-                                    </button>
-                                )}
-                              </div>
-                            ) : (
-                              <div
-                                className="btn-group btn-group-sm"
-                                role="group"
-                                aria-label="User Actions"
-                              >
-                                <button
-                                  type="button"
-                                  className="btn btn-sm btn-danger"
-                                  title={`${meeting.reallySure ? 'Are you sure?' : 'Edit'}`}
-                                  onClick={() => this.delete(index)}
-                                >
-                                  <em className="fa fa-trash" />
-                                </button>
-                                {meeting.reallySure && (
+                                <em className="fa fa-pencil-alt" />
+                              </button>
+                              <NavContext.Consumer>
+                                {({ setPage }) => (
                                   <button
                                     type="button"
-                                    className="btn btn-sm btn-default"
-                                    title="Cancel"
-                                    onClick={() => this.cancelDelete(index)}
+                                    className={`btn btn-sm btn-info ${
+                                      moment(new Date()).isBefore(meeting.date) ? 'hidden' : ''
+                                    }`}
+                                    title="Edit"
+                                    onClick={() => setPage('attendance', { meeting })}
                                   >
-                                    <em className="fa fa-times" />
+                                    <em className="fa fa-clipboard-list" />
                                   </button>
                                 )}
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                      {meetings.length === 0 && (
-                        <tr>
-                          <td className="text-center">No meetings have been scheduled.</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                )}
-                {showForm && (
-                  <MeetingForm
-                    selectedMeeting={selectedMeeting}
-                    editing={!!selectedMeeting._id}
-                    submitForm={this.submitMeeting}
-                    submitEdit={() => console.log('submit edit')}
-                    handleChange={this.handleChange}
-                    cancel={() => this.setState({ selectedMeeting: {}, showForm: false })}
-                  />
-                )}
-              </div>
-            </div>
+                              </NavContext.Consumer>
+                              {meeting.attendance.length === 0 &&
+                                !moment(new Date()).isAfter(meeting.date) && (
+                                  <button
+                                    type="button"
+                                    className="btn btn-danger"
+                                    title="Delete"
+                                    onClick={() => this.delete(index)}
+                                  >
+                                    <em className="fa fa-trash" />
+                                  </button>
+                                )}
+                            </div>
+                          ) : (
+                            <div
+                              className="btn-group btn-group-sm"
+                              role="group"
+                              aria-label="User Actions"
+                            >
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-danger"
+                                title={`${meeting.reallySure ? 'Are you sure?' : 'Edit'}`}
+                                onClick={() => this.delete(index)}
+                              >
+                                <em className="fa fa-trash" />
+                              </button>
+                              {meeting.reallySure && (
+                                <button
+                                  type="button"
+                                  className="btn btn-sm btn-default"
+                                  title="Cancel"
+                                  onClick={() => this.cancelDelete(index)}
+                                >
+                                  <em className="fa fa-times" />
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                    {meetings.length === 0 && (
+                      <tr>
+                        <td className="text-center">No meetings have been scheduled.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              )}
+              {showForm && (
+                <MeetingForm
+                  selectedMeeting={selectedMeeting}
+                  editing={selectedMeeting._id}
+                  submitForm={this.submitMeeting}
+                  submitEdit={() => console.log('submit edit')}
+                  handleChange={this.handleChange}
+                  cancel={() => this.setState({ selectedMeeting: {}, showForm: false })}
+                />
+              )}
+            </Panel>
           </div>
         </div>
       </Page>

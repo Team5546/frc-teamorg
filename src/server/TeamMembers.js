@@ -77,7 +77,7 @@ teamMembersRouter.post('/', (req, res) => {
           console.log('saved team member');
           res.status(201).send();
         });
-        create.catch((createErr) => {
+        create.catch(createErr => {
           res.status(422).json(createErr);
         });
         // create.finally(() => console.log('finally done'));
@@ -167,6 +167,19 @@ teamMembersRouter.put('/', (req, res) => {
       }
     }
   );
+});
+
+teamMembersRouter.delete('/all', (req, res) => {
+  TeamMember.deleteMany({}, err => {
+    if (err)
+      return res.status(500).json({
+        errors: {
+          message: 'There was an error while deleting all current members',
+          serverError: err
+        }
+      });
+    return res.status(200).send();
+  });
 });
 
 module.exports = { teamMembersRouter };

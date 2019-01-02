@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import Page from '../../components/Page';
 import NavContext from '../../NavContext';
 import AlertBox from '../../helpers/stateless/AlertBox';
+import Panel from '../../helpers/stateless/Panel';
 
 export default class GoogleGroups extends Component {
   constructor(props) {
@@ -25,11 +26,11 @@ export default class GoogleGroups extends Component {
 
   getGroup(id) {
     axios.get(`/api/v1/google/groups/${id}`).then(
-      (response) => {
+      response => {
         // console.log(response.data);
         this.setState({ group: response.data });
       },
-      (err) => {
+      err => {
         this.setState({ errors: { ...err, message: 'Unknow error occured.' } });
       }
     );
@@ -46,20 +47,18 @@ export default class GoogleGroups extends Component {
     e.preventDefault();
     const { group } = this.state;
     axios.put(`/api/v1/google/groups/${group.id}`, group).then(
-      (response) => {
+      response => {
         // console.log({ ...group, ...response.data });
         this.setState({ group: { ...group, ...response.data }, editing: false });
       },
-      (err) => {
+      err => {
         this.setState({ ...err });
       }
     );
   }
 
   render() {
-    const {
-      group, errors, editing, groupBak
-    } = this.state;
+    const { group, errors, editing, groupBak } = this.state;
     return (
       <NavContext.Consumer>
         {({ setPage }) => (
@@ -71,7 +70,7 @@ export default class GoogleGroups extends Component {
               type="danger"
             />
             <div className="row">
-              <div className="col-md-2">
+              <div className="col-auto">
                 <button
                   type="button"
                   className="btn btn-small btn-default"
@@ -82,161 +81,125 @@ export default class GoogleGroups extends Component {
               </div>
             </div>
             <hr />
-            <div className="panel panel-default">
-              <div className="panel-heading">
-                Group Info
-                {!editing && (
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-default pull-right"
-                    onClick={() => this.setState({ groupBak: Object.assign({}, group), editing: true })
-                    }
-                  >
-                    <em className="fa fa-pencil-alt" />
-                  </button>
-                )}
-              </div>
-              <div className="panel-body">
-                {editing ? (
-                  <form onSubmit={this.updateGroup}>
-                    <div className="form-row">
-                      <div className="form-group col-sm-6">
-                        <label htmlFor="name">
-Name
-                        </label>
-                        <input
-                          id="name"
-                          className="form-control"
-                          value={group.name || ''}
-                          onChange={this.handleChange}
-                          placeholder="Name"
-                          required
-                        />
-                      </div>
-                      <div className="form-group col-sm-6">
-                        <label htmlFor="email">
-Email
-                        </label>
-                        <input
-                          id="email"
-                          className="form-control"
-                          value={group.email || ''}
-                          onChange={this.handleChange}
-                          placeholder="Email"
-                          required
-                        />
-                      </div>
-                      <div className="form-group col-sm-12">
-                        <label htmlFor="description">
-Description
-                        </label>
-                        <textarea
-                          id="description"
-                          className="form-control"
-                          value={group.description || ''}
-                          onChange={this.handleChange}
-                          placeholder="Description"
-                          required
-                        />
+            <Panel
+              title="Group Info"
+              buttons={
+                !editing
+                  ? [
+                      {
+                        type: 'default',
+                        func: () =>
+                          this.setState({ groupBak: Object.assign({}, group), editing: true }),
+                        icon: 'pencil-alt'
+                      }
+                    ]
+                  : []
+              }
+            >
+              {editing ? (
+                <form onSubmit={this.updateGroup}>
+                  <div className="form-row">
+                    <div className="form-group col-sm-6">
+                      <label htmlFor="name">Name</label>
+                      <input
+                        id="name"
+                        className="form-control"
+                        value={group.name || ''}
+                        onChange={this.handleChange}
+                        placeholder="Name"
+                        required
+                      />
+                    </div>
+                    <div className="form-group col-sm-6">
+                      <label htmlFor="email">Email</label>
+                      <input
+                        id="email"
+                        className="form-control"
+                        value={group.email || ''}
+                        onChange={this.handleChange}
+                        placeholder="Email"
+                        required
+                      />
+                    </div>
+                    <div className="form-group col-sm-12">
+                      <label htmlFor="description">Description</label>
+                      <textarea
+                        id="description"
+                        className="form-control"
+                        value={group.description || ''}
+                        onChange={this.handleChange}
+                        placeholder="Description"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="form-row">
+                    <div className="form-group col-sm-12">
+                      <div className="btn-group" role="group" aria-label="Controls">
+                        <button type="submit" className="btn btn-sm btn-info">
+                          <em className="fa fa-save">&nbsp;</em>
+                          Save Changes
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-default"
+                          onClick={() => this.setState({ group: groupBak, editing: false })}
+                        >
+                          <em className="fa fa-times">&nbsp;</em>
+                          Cancel
+                        </button>
                       </div>
                     </div>
-                    <div className="form-row">
-                      <div className="form-group col-sm-12">
-                        <div className="btn-group" role="group" aria-label="Controls">
-                          <button type="submit" className="btn btn-sm btn-info">
-                            <em className="fa fa-save">
-&nbsp;
-                            </em>
-                            Save Changes
-                          </button>
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-default"
-                            onClick={() => this.setState({ group: groupBak, editing: false })}
-                          >
-                            <em className="fa fa-times">
-&nbsp;
-                            </em>
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </form>
-                ) : (
-                  <dl>
-                    <dt>
-Name
-                    </dt>
-                    <dl>
-                      {group.name}
-                    </dl>
-                    <dt>
-Email
-                    </dt>
-                    <dl>
-                      {group.email}
-                    </dl>
-                    <dt>
-Description
-                    </dt>
-                    <dl>
-                      {group.description}
-                    </dl>
-                  </dl>
-                )}
-              </div>
-            </div>
-            <div className="panel panel-default">
-              <div className="panel-heading">
-Members
-              </div>
-              <div className="panel-body">
-                {!group.members && 'No members.'}
-                {group.members && (
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <td>
-Email
-                        </td>
-                        <td>
-Role
+                  </div>
+                </form>
+              ) : (
+                <dl>
+                  <dt>Name</dt>
+                  <dl>{group.name}</dl>
+                  <dt>Email</dt>
+                  <dl>{group.email}</dl>
+                  <dt>Description</dt>
+                  <dl>{group.description}</dl>
+                </dl>
+              )}
+            </Panel>
+            <Panel title="Members">
+              {!group.members && 'No members.'}
+              {group.members && (
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <td>Email</td>
+                      <td>Role</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {group.members.map(member => (
+                      <tr key={member.id}>
+                        <td>{member.email}</td>
+                        <td
+                          className={`${member.role === 'OWNER' ? 'text-success' : ''}${
+                            member.role === 'MANAGER' ? 'text-info' : ''
+                          }`}
+                          style={{
+                            textDecoration:
+                              member.role === 'OWNER' || member.role === 'MANAGER'
+                                ? 'underline'
+                                : 'none',
+                            fontWeight:
+                              member.role === 'OWNER' || member.role === 'MANAGER' ? 'bold' : 'none'
+                          }}
+                        >
+                          {`${member.role.substring(0, 1)}${member.role
+                            .toLowerCase()
+                            .substring(1)}`}
                         </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {group.members.map(member => (
-                        <tr key={member.id}>
-                          <td>
-                            {member.email}
-                          </td>
-                          <td
-                            className={`${member.role === 'OWNER' ? 'text-success' : ''}${
-                              member.role === 'MANAGER' ? 'text-info' : ''
-                            }`}
-                            style={{
-                              textDecoration:
-                                member.role === 'OWNER' || member.role === 'MANAGER'
-                                  ? 'underline'
-                                  : 'none',
-                              fontWeight:
-                                member.role === 'OWNER' || member.role === 'MANAGER'
-                                  ? 'bold'
-                                  : 'none'
-                            }}
-                          >
-                            {`${member.role.substring(0, 1)}${member.role
-                              .toLowerCase()
-                              .substring(1)}`}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            </div>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </Panel>
           </Page>
         )}
       </NavContext.Consumer>

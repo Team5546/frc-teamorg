@@ -65,7 +65,7 @@ export default class MemberInfo extends Component {
         this.setState({ saving: false, success: true });
         console.log('updated team member');
       },
-      (err) => {
+      err => {
         if (err.response.status === 413) errors.message = 'File too large. File size limit is 1Mb.';
         this.setState({ errors: { ...errors, ...err.response.data.errors } });
       }
@@ -103,18 +103,20 @@ export default class MemberInfo extends Component {
         ...teamMember,
         leftTeam: !teamMember.leftTeam
       })
-      .then(() => this.setState({
-        teamMember: {
-          ...teamMember,
-          leftTeam: !teamMember.leftTeam
-        }
-      }), err => this.setState({ errors: { ...errors, ...err.response.data.errors } }));
+      .then(
+        () =>
+          this.setState({
+            teamMember: {
+              ...teamMember,
+              leftTeam: !teamMember.leftTeam
+            }
+          }),
+        err => this.setState({ errors: { ...errors, ...err.response.data.errors } })
+      );
   }
 
   render() {
-    const {
-      teamMember, saving, success, errors, fileNames
-    } = this.state;
+    const { teamMember, saving, success, errors, fileNames } = this.state;
     return (
       <NavContext.Consumer>
         {({ setPage }) => (
@@ -134,7 +136,7 @@ export default class MemberInfo extends Component {
               type="danger"
             />
             <div className="row">
-              <div className="col-md-2">
+              <div className="col-auto mr-auto">
                 <button
                   type="button"
                   className="btn btn-small btn-default"
@@ -144,7 +146,7 @@ export default class MemberInfo extends Component {
                 </button>
               </div>
               {teamMember && (
-                <div className="col-md-2 pull-right">
+                <div className="col-auto">
                   <button
                     type="button"
                     className="btn btn-small btn-default pull-right"
@@ -162,84 +164,49 @@ export default class MemberInfo extends Component {
             {teamMember ? (
               <React.Fragment>
                 <div className="row">
-                  <div className="col-md-4">
-                    <div className="panel panel-default">
-                      <div className="panel-heading">
-Student Info
-                      </div>
-                      <div className="panel-body">
-                        <dl>
-                          <h4>
-                            {`${teamMember.firstName} ${teamMember.lastName}`}
-                          </h4>
-                          <dt>
-Grade
-                          </dt>
-                          <dd>
-                            {`${teamMember.grade}`}
-                          </dd>
-                          <dt>
-Major
-                          </dt>
-                          <dd>
-                            {`${teamMember.major}`}
-                          </dd>
-                          <dt>
-Email
-                          </dt>
-                          <dd>
-                            {`${teamMember.email}`}
-                          </dd>
-                          <dt>
-Address
-                          </dt>
-                          <dd>
-                            {`${teamMember.address1} ${teamMember.address2 || ''} ${
-                              teamMember.city
-                            } ${teamMember.state} ${teamMember.zipCode}`}
-                          </dd>
-                          <dt>
-Sub Teams
-                          </dt>
-                          <dd>
-                            {teamMember.subTeams
-                              .map(team => team.substring(0, 1).toUpperCase() + team.substring(1))
-                              .join(', ')}
-                          </dd>
-                        </dl>
-                      </div>
-                    </div>
+                  <div className="col col-md-4 mb-3">
+                    <Panel title="Student Info">
+                      <dl>
+                        <h4>{`${teamMember.firstName} ${teamMember.lastName}`}</h4>
+                        <dt>Grade</dt>
+                        <dd>{`${teamMember.grade}`}</dd>
+                        <dt>Major</dt>
+                        <dd>{`${teamMember.major}`}</dd>
+                        <dt>Email</dt>
+                        <dd>{`${teamMember.email}`}</dd>
+                        <dt>Address</dt>
+                        <dd>
+                          {`${teamMember.address1} ${teamMember.address2 || ''} ${
+                            teamMember.city
+                          } ${teamMember.state} ${teamMember.zipCode}`}
+                        </dd>
+                        <dt>Sub Teams</dt>
+                        <dd>
+                          {teamMember.subTeams
+                            .map(team => team.substring(0, 1).toUpperCase() + team.substring(1))
+                            .join(', ')}
+                        </dd>
+                      </dl>
+                    </Panel>
                   </div>
-                  <div className="col-md-4">
+                  <div className="col col-md-4 mb-3">
                     <Panel title="Parent Info">
                       {teamMember.parents.map(parent => (
                         <dl key={`${parent.firstName}-${parent.lastName}`}>
-                          <h4>
-                            {`${parent.firstName} ${parent.lastName}`}
-                          </h4>
-                          <dt>
-Phone
-                          </dt>
-                          <dd>
-                            {`${phoneFormat.format(parent.phone, '(NNN) NNN-NNNN')}`}
-                          </dd>
-                          <dt>
-Email
-                          </dt>
-                          <dd>
-                            {`${parent.email}`}
-                          </dd>
+                          <h4>{`${parent.firstName} ${parent.lastName}`}</h4>
+                          <dt>Phone</dt>
+                          <dd>{`${phoneFormat.format(parent.phone, '(NNN) NNN-NNNN')}`}</dd>
+                          <dt>Email</dt>
+                          <dd>{`${parent.email}`}</dd>
                         </dl>
                       ))}
                     </Panel>
                   </div>
-                  <div className="col-md-4">
+                  <div className="col col-md-4 mb-3">
                     <Panel title="Update Form/Dues Status">
                       <div className="row">
                         <div className="col-xs-12 col-md-6">
-                          <h5>
-Student Contract
-                          </h5>
+                          <h5>Student Contract</h5>
                           <button
                             type="button"
                             className={`btn btn-sm ${
@@ -274,15 +241,13 @@ Student Contract
                                 </a>
                               )}
                               {fileNames.studentContract && (
-                                <p style={{ overflow: 'hidden' }}>
-                                  {fileNames.studentContract}
-                                </p>
+                                <p style={{ overflow: 'hidden' }}>{fileNames.studentContract}</p>
                               )}
                             </em>
                           </h6>
                           {teamMember.studentContractPicture ? (
-                            base64MimeType(teamMember.studentContractPicture)
-                            === 'application/pdf' ? (
+                            base64MimeType(teamMember.studentContractPicture) ===
+                            'application/pdf' ? (
                               <embed
                                 width="100%"
                                 height="100px"
@@ -290,19 +255,17 @@ Student Contract
                                 src={teamMember.studentContractPicture}
                                 type="application/pdf"
                               />
-                              ) : (
-                                <img
-                                  src={teamMember.studentContractPicture}
-                                  width="100%"
-                                  alt="Student Contract"
-                                  style={{ marginBottom: '5px' }}
-                                />
-                              )
+                            ) : (
+                              <img
+                                src={teamMember.studentContractPicture}
+                                width="100%"
+                                alt="Student Contract"
+                                style={{ marginBottom: '5px' }}
+                              />
+                            )
                           ) : (
                             <p>
-                              <em>
-No file uploaded. (pdf, image files)
-                              </em>
+                              <em>No file uploaded. (pdf, image files)</em>
                             </p>
                           )}
                           {!teamMember.studentContractPicture ? (
@@ -331,9 +294,7 @@ No file uploaded. (pdf, image files)
                           )}
                         </div>
                         <div className="col-xs-12 col-md-6">
-                          <h5>
-Parent Contract
-                          </h5>
+                          <h5>Parent Contract</h5>
                           <button
                             type="button"
                             id="parentContract"
@@ -369,15 +330,13 @@ Parent Contract
                                 </a>
                               )}
                               {fileNames.parentContract && (
-                                <p style={{ overflow: 'hidden' }}>
-                                  {fileNames.parentContract}
-                                </p>
+                                <p style={{ overflow: 'hidden' }}>{fileNames.parentContract}</p>
                               )}
                             </em>
                           </h6>
                           {teamMember.parentContractPicture ? (
-                            base64MimeType(teamMember.parentContractPicture)
-                            === 'application/pdf' ? (
+                            base64MimeType(teamMember.parentContractPicture) ===
+                            'application/pdf' ? (
                               <embed
                                 width="100%"
                                 height="100px"
@@ -385,19 +344,17 @@ Parent Contract
                                 src={teamMember.parentContractPicture}
                                 type="application/pdf"
                               />
-                              ) : (
-                                <img
-                                  src={teamMember.parentContractPicture}
-                                  width="100%"
-                                  alt="Student Contract"
-                                  style={{ marginBottom: '5px' }}
-                                />
-                              )
+                            ) : (
+                              <img
+                                src={teamMember.parentContractPicture}
+                                width="100%"
+                                alt="Student Contract"
+                                style={{ marginBottom: '5px' }}
+                              />
+                            )
                           ) : (
                             <p>
-                              <em>
-No file uploaded. (pdf, image files)
-                              </em>
+                              <em>No file uploaded. (pdf, image files)</em>
                             </p>
                           )}
                           {!teamMember.parentContractPicture ? (
@@ -426,9 +383,7 @@ No file uploaded. (pdf, image files)
                           )}
                         </div>
                         <div className="col-xs-12 col-md-6">
-                          <h5>
-Medical Form
-                          </h5>
+                          <h5>Medical Form</h5>
                           <button
                             type="button"
                             id="medicalForm"
@@ -462,9 +417,7 @@ Medical Form
                                 </a>
                               )}
                               {fileNames.medicalForm && (
-                                <p style={{ overflow: 'hidden' }}>
-                                  {fileNames.medicalForm}
-                                </p>
+                                <p style={{ overflow: 'hidden' }}>{fileNames.medicalForm}</p>
                               )}
                             </em>
                           </h6>
@@ -487,9 +440,7 @@ Medical Form
                             )
                           ) : (
                             <p>
-                              <em>
-No file uploaded. (pdf, image files)
-                              </em>
+                              <em>No file uploaded. (pdf, image files)</em>
                             </p>
                           )}
                           {!teamMember.medicalFormPicture ? (
@@ -517,10 +468,8 @@ No file uploaded. (pdf, image files)
                             </button>
                           )}
                         </div>
-                        <div className="col-xs-12">
-                          <h5>
-Dues
-                          </h5>
+                        <div className="col-12">
+                          <h5>Dues</h5>
                           <button
                             type="button"
                             id="medicalForm"
@@ -546,97 +495,66 @@ Dues
                       </div>
                     </Panel>
                   </div>
-                  <div className="col-md-4">
-                    <div className="panel panel-default">
-                      <div className="panel-heading">
-Meeting Stats
-                      </div>
-                      <div className="panel-body">
-                        <h4>
-                          Sub Team Meetings Attended
-                          <span
-                            className={
-                              teamMember.subTeamMeetingsAttended < 80
-                                ? 'text-danger'
-                                : 'text-success'
-                            }
-                          >
-                            {` ${teamMember.subTeamMeetingsAttended}%`}
-                          </span>
-                        </h4>
-                        <h4>
-                          Entire Team Meetings Attended
-                          <span
-                            className={
-                              teamMember.teamMeetingsAttended < 50 ? 'text-danger' : 'text-success'
-                            }
-                          >
-                            {` ${teamMember.teamMeetingsAttended}%`}
-                          </span>
-                        </h4>
-                      </div>
-                    </div>
+                  <div className="col col-md-4 mb-3">
+                    <Panel title="Meeting Stats">
+                      <h4>
+                        Sub Team Meetings Attended
+                        <span
+                          className={
+                            teamMember.subTeamMeetingsAttended < 80 ? 'text-danger' : 'text-success'
+                          }
+                        >
+                          {` ${teamMember.subTeamMeetingsAttended}%`}
+                        </span>
+                      </h4>
+                      <h4>
+                        Entire Team Meetings Attended
+                        <span
+                          className={
+                            teamMember.teamMeetingsAttended < 50 ? 'text-danger' : 'text-success'
+                          }
+                        >
+                          {` ${teamMember.teamMeetingsAttended}%`}
+                        </span>
+                      </h4>
+                    </Panel>
                   </div>
-                  <div className="col-md-4">
-                    <div className="panel panel-default">
-                      <div className="panel-heading">
-Meetings
-                      </div>
-                      <div className="panel-body">
-                        {teamMember.meetings.map((meeting, i) => (
-                          <dl
-                            key={
-                              moment(meeting.date).format('MM/DD/YY')
-                              + meeting.meeting.subTeams.join('')
-                            }
-                          >
-                            <dt>
-Date
-                            </dt>
-                            <dd>
-                              {moment(meeting.date).format('MM/DD/YY')}
-                            </dd>
-                            <dt>
-Type
-                            </dt>
-                            <dd>
-                              {meeting.meeting.subTeams.length === 6 ? 'Entire Team' : 'Sub Team'}
-                            </dd>
-                            <dt>
-Attended?
-                            </dt>
-                            <dd className={meeting.attended ? 'text-success' : 'text-danger'}>
-                              {meeting.attended ? 'Yes' : 'No'}
-                            </dd>
-                            {i !== 0 && <hr />}
-                          </dl>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-4">
-                    <div className="panel panel-default">
-                      <div className="panel-heading">
-Developer Info
-                      </div>
-                      <div className="panel-body">
-                        <dl>
-                          <dt>
-_id
-                          </dt>
+                  <div className="col col-md-4 mb-3">
+                    <Panel title="Meetings">
+                      {teamMember.meetings.map((meeting, i) => (
+                        <dl
+                          key={
+                            moment(meeting.date).format('MM/DD/YY') +
+                            meeting.meeting.subTeams.join('')
+                          }
+                        >
+                          <dt>Date</dt>
+                          <dd>{moment(meeting.date).format('MM/DD/YY')}</dd>
+                          <dt>Type</dt>
                           <dd>
-                            {teamMember._id}
+                            {meeting.meeting.subTeams.length === 6 ? 'Entire Team' : 'Sub Team'}
                           </dd>
+                          <dt>Attended?</dt>
+                          <dd className={meeting.attended ? 'text-success' : 'text-danger'}>
+                            {meeting.attended ? 'Yes' : 'No'}
+                          </dd>
+                          {i !== 0 && <hr />}
                         </dl>
-                      </div>
-                    </div>
+                      ))}
+                    </Panel>
+                  </div>
+                  <div className="col col-md-4 mb-3">
+                    <Panel title="Developer Info">
+                      <dl>
+                        <dt>_id</dt>
+                        <dd>{teamMember._id}</dd>
+                      </dl>
+                    </Panel>
                   </div>
                 </div>
               </React.Fragment>
             ) : (
-              <h4>
-No Team Member Selected
-              </h4>
+              <h4>No Team Member Selected</h4>
             )}
           </Page>
         )}

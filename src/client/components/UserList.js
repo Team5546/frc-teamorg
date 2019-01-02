@@ -2,33 +2,19 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { UserContext } from '../UserContext';
 
-const UserList = ({
-  users, selectUser, deleteUser, cancelDelete
-}) => (
+const UserList = ({ users, selectUser, deleteUser, cancelDelete }) => (
   <UserContext.Consumer>
     {({ user }) => (
       <table className="table">
         <thead>
           <tr>
             <th scope="col" />
-            <th scope="col">
-Username
-            </th>
-            <th scope="col">
-Name
-            </th>
-            <th scope="col">
-Created At
-            </th>
-            <th scope="col">
-Created By
-            </th>
-            <th scope="col">
-Last Login
-            </th>
-            <th scope="col">
-Last Modified
-            </th>
+            <th scope="col">Username</th>
+            <th scope="col">Name</th>
+            <th scope="col">Created At</th>
+            <th scope="col">Created By</th>
+            <th scope="col">Last Login</th>
+            <th scope="col">Last Modified</th>
             <th scope="col" />
           </tr>
         </thead>
@@ -42,34 +28,28 @@ Last Modified
                   }`}
                 />
               </td>
+              <td>{_user.username}</td>
               <td>
-                {_user.username}
+                {_user.firstName} {_user.lastName}
               </td>
               <td>
-                {_user.firstName}
-                {' '}
-                {_user.lastName}
-              </td>
-              <td>
-                {_user.createdAt
-                  && `${new Date(_user.createdAt).toLocaleDateString()} ${new Date(
+                {_user.createdAt &&
+                  `${new Date(_user.createdAt).toLocaleDateString()} ${new Date(
                     _user.createdAt
                   ).toLocaleTimeString()}`}
                 {!_user.createdAt && 'Never'}
               </td>
+              <td>{_user.createdBy || ''}</td>
               <td>
-                {_user.createdBy || ''}
-              </td>
-              <td>
-                {_user.lastLogin
-                  && `${new Date(_user.lastLogin).toLocaleDateString()} ${new Date(
+                {_user.lastLogin &&
+                  `${new Date(_user.lastLogin).toLocaleDateString()} ${new Date(
                     _user.lastLogin
                   ).toLocaleTimeString()}`}
                 {!_user.lastLogin && 'Never'}
               </td>
               <td>
-                {_user.lastModified
-                  && `${new Date(_user.lastModified).toLocaleDateString()} ${new Date(
+                {_user.lastModified &&
+                  `${new Date(_user.lastModified).toLocaleDateString()} ${new Date(
                     _user.lastModified
                   ).toLocaleTimeString()}`}
                 {!_user.lastModified && 'Never'}
@@ -79,7 +59,7 @@ Last Modified
                   <div className="btn-group btn-group-sm" role="group" aria-label="User Actions">
                     <button
                       type="button"
-                      className="btn btn-sm btn-warning"
+                      className="btn btn-warning btn-sm"
                       title="Edit"
                       onClick={() => selectUser(_user)}
                     >
@@ -87,7 +67,7 @@ Last Modified
                     </button>
                     <button
                       type="button"
-                      className="btn btn-danger"
+                      className="btn btn-danger btn-sm"
                       title="Delete"
                       onClick={() => deleteUser(index)}
                     >
@@ -98,7 +78,7 @@ Last Modified
                   <div className="btn-group btn-group-sm" role="group" aria-label="User Actions">
                     <button
                       type="button"
-                      className={`btn btn-sm btn-${_user.reallySure ? 'danger' : 'warning'}`}
+                      className={`btn btn-${_user.reallySure ? 'danger' : 'warning'} btn-sm`}
                       title={`${_user.reallySure ? 'Are you sure?' : 'Edit'}`}
                       onClick={() => {
                         if (_user.reallySure) {
@@ -117,7 +97,7 @@ Last Modified
                     {_user.reallySure && (
                       <button
                         type="button"
-                        className="btn btn-sm btn-default"
+                        className="btn btn-light btn-sm"
                         title="Cancel"
                         onClick={() => cancelDelete(index)}
                       >

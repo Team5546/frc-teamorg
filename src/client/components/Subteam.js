@@ -1,43 +1,27 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './styles/Subteam.scss';
+import Panel from '../helpers/stateless/Panel';
 
-const Subteam = ({
-  title, members, color, group, showGroup, toggleGroup, updateGroup
-}) => (
-  <div className="col-md-4">
-    <div className={`panel panel-${color || 'default'}`}>
-      <div className="panel-heading">
-        {title}
-      </div>
+const Subteam = ({ title, members, color, group, showGroup, toggleGroup, updateGroup }) => (
+  <div className="col-md-4 pb-3">
+    <Panel title={title}>
       {!showGroup ? (
-        <div className="panel-body">
+        <React.Fragment>
           <table className="table">
             <thead>
               <tr>
-                <th scope="col">
-Name
-                </th>
-                <th scope="col">
-Grade
-                </th>
-                <th scope="col">
-Focus Area
-                </th>
+                <th scope="col">Name</th>
+                <th scope="col">Grade</th>
+                <th scope="col">Focus Area</th>
               </tr>
             </thead>
             <tbody className="subteam-scroll-table">
               {members.map(member => (
                 <tr key={`user${member._id}`}>
-                  <td>
-                    {`${member.firstName} ${member.lastName}`}
-                  </td>
-                  <td>
-                    {member.grade}
-                  </td>
-                  <td>
-                    {member.major}
-                  </td>
+                  <td>{`${member.firstName} ${member.lastName}`}</td>
+                  <td>{member.grade}</td>
+                  <td>{member.major}</td>
                 </tr>
               ))}
             </tbody>
@@ -45,34 +29,26 @@ Focus Area
           {group.id && (
             <React.Fragment>
               <dl>
-                <dt>
-GSuite Group Name
-                </dt>
-                <dd>
-                  {group.name}
-                </dd>
-                <dt>
-Email
-                </dt>
-                <dd>
-                  {group.email}
-                </dd>
-                <dt>
-Members
-                </dt>
+                <dt>GSuite Group Name</dt>
+                <dd>{group.name}</dd>
+                <dt>Email</dt>
+                <dd>{group.email}</dd>
+                <dt>Members</dt>
                 <dd
                   className={
                     members.filter(
-                      val => [
-                        'bdharker@args.us',
-                        'mansari@args.us',
-                        'acrowder@args.us',
-                        'asalas@args.us'
-                      ].indexOf(val.email) === -1
-                    ).length
-                    !== group.members.filter(
-                      val => val.email.indexOf('args.us') > -1
-                        && [
+                      val =>
+                        [
+                          'bdharker@args.us',
+                          'mansari@args.us',
+                          'acrowder@args.us',
+                          'asalas@args.us'
+                        ].indexOf(val.email) === -1
+                    ).length !==
+                    group.members.filter(
+                      val =>
+                        val.email.indexOf('args.us') > -1 &&
+                        [
                           'bdharker@args.us',
                           'mansari@args.us',
                           'acrowder@args.us',
@@ -85,19 +61,21 @@ Members
                 >
                   {`Actual: ${
                     members.filter(
-                      val => [
-                        'bdharker@args.us',
-                        'mansari@args.us',
-                        'acrowder@args.us',
-                        'asalas@args.us'
-                      ].indexOf(val.email) === -1
+                      val =>
+                        [
+                          'bdharker@args.us',
+                          'mansari@args.us',
+                          'acrowder@args.us',
+                          'asalas@args.us'
+                        ].indexOf(val.email) === -1
                     ).length
                   }`}
                   <br />
                   {`Added to mailing list: ${
                     group.members.filter(
-                      val => val.email.indexOf('args.us') > -1
-                        && [
+                      val =>
+                        val.email.indexOf('args.us') > -1 &&
+                        [
                           'bdharker@args.us',
                           'mansari@args.us',
                           'acrowder@args.us',
@@ -112,17 +90,15 @@ Members
               </button>
             </React.Fragment>
           )}
-        </div>
+        </React.Fragment>
       ) : (
-        <div className="panel-body">
+        <React.Fragment>
           <div className="row">
-            <div className="col-xs-6">
+            <div className="col-6 pr-0">
               <table className="table">
                 <thead>
                   <tr>
-                    <th scope="col">
-Subteam
-                    </th>
+                    <th scope="col">Subteam</th>
                   </tr>
                 </thead>
                 <tbody className="subteam-scroll-table">
@@ -134,26 +110,22 @@ Subteam
                     })
                     .map(member => (
                       <tr key={`user${member._id}`}>
-                        <td>
-                          {member.email}
-                        </td>
+                        <td>{member.email}</td>
                       </tr>
                     ))}
                 </tbody>
               </table>
             </div>
-            <div className="col-xs-6">
+            <div className="col-6 pl-0">
               <table className="table">
                 <thead>
                   <tr>
-                    <th scope="col">
-Mailing List
-                    </th>
+                    <th scope="col">Mailing List</th>
                   </tr>
                 </thead>
                 <tbody className="subteam-scroll-table">
-                  {group.members
-                    && group.members
+                  {group.members &&
+                    group.members
                       .sort((a, b) => {
                         if (b.email > a.email) return -1;
                         if (a.email < b.email) return 1;
@@ -161,9 +133,7 @@ Mailing List
                       })
                       .map(member => (
                         <tr key={`groupUser${member.id}`}>
-                          <td>
-                            {member.email}
-                          </td>
+                          <td>{member.email}</td>
                         </tr>
                       ))}
                 </tbody>
@@ -178,9 +148,9 @@ Mailing List
               Update Mailing List
             </button>
           </div>
-        </div>
+        </React.Fragment>
       )}
-    </div>
+    </Panel>
   </div>
 );
 

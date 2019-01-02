@@ -26,16 +26,17 @@ export default class GoogleAdmin extends Component {
 
   getMissingDocsMembers() {
     axios.get('/api/v1/teamMembers').then(
-      (response) => {
+      response => {
         const missingDocsMembers = response.data.filter(
-          member => !member.studentContract
-            || !member.parentContract
-            || !member.medicalForm
-            || !member.duesPaid
+          member =>
+            !member.studentContract ||
+            !member.parentContract ||
+            !member.medicalForm ||
+            !member.duesPaid
         );
         this.setState({ missingDocs: { members: missingDocsMembers } });
       },
-      (err) => {
+      err => {
         this.setState({
           errors: { ...err, message: 'Unknow error occured while loading team members.' }
         });
@@ -49,17 +50,17 @@ export default class GoogleAdmin extends Component {
     const membersToSend = members.map(m => ({ ...m, name: `${m.firstName} ${m.lastName}` }));
     const testing = true;
     if (testing) {
-      axios.get('/api/v1/teamMembers/5c171077365ec2c575a46886').then((response) => {
+      axios.get('/api/v1/teamMembers/5c171077365ec2c575a46886').then(response => {
         const testMembers = [
           { ...response.data, name: `${response.data.firstName} ${response.data.lastName}` },
           { name: 'Admin Test', email: 'bradley@argsrobotics.com' }
         ];
-        axios.put('/api/v1/google/sendMissingDocsEmail', testMembers).then((res) => {
+        axios.put('/api/v1/google/sendMissingDocsEmail', testMembers).then(res => {
           this.setState({ missingDocs: { ...missingDocs, response: res.data, showAlert: true } });
         });
       });
     } else {
-      axios.put('/api/v1/google/sendMissingDocsEmail', membersToSend).then((res) => {
+      axios.put('/api/v1/google/sendMissingDocsEmail', membersToSend).then(res => {
         this.setState({ missingDocs: { ...missingDocs, response: res.data, showAlert: true } });
       });
     }
@@ -78,13 +79,20 @@ export default class GoogleAdmin extends Component {
         <Panel
           title="Email Members With Missing Forms or Dues"
           type={
-            ((!missingDocs.showAlert || !missingDocs.response) && 'default')
-            || (missingDocs.showAlert
-            && missingDocs.response
-            && missingDocs.response.errorList.length > 0
+            ((!missingDocs.showAlert || !missingDocs.response) && 'default') ||
+            (missingDocs.showAlert &&
+            missingDocs.response &&
+            missingDocs.response.errorList.length > 0
               ? 'danger'
               : 'success')
           }
+          buttons={[
+            {
+              type: 'info',
+              func: this.sendMissingDocsEmail,
+              icon: 'mail-bulk'
+            }
+          ]}
         >
           <AlertBox
             condition={missingDocs.showAlert}
@@ -92,68 +100,54 @@ export default class GoogleAdmin extends Component {
             close={() => this.setState({ missingDocs: { ...missingDocs, showAlert: undefined } })}
             type="primary"
           />
-          <button type="button" className="btn btn-info" onClick={this.sendMissingDocsEmail}>
-            <em className="fa fa-mail-bulk">
-&nbsp;
-            </em>
-            Send Email
-          </button>
-          <table className="table">
+          <table
+            className="table"
+            style={{
+              display: 'block',
+              maxHeight: 300,
+              overflow: 'scroll',
+              boxShadow: 'inset 0px -68px 79px -67px rgba(235, 235, 235, 0.8)'
+            }}
+          >
             <thead>
               <tr>
-                <th>
-Name
-                </th>
-                <th>
-Email
-                </th>
-                <th>
-Status
-                </th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
               {missingDocs.members.map(member => (
                 <tr key={member.firstName + member.lastName}>
-                  <td className="o-hidden">
-                    {`${member.firstName} ${member.lastName}`}
-                  </td>
-                  <td className="o-hidden">
-                    {member.email}
-                  </td>
+                  <td className="o-hidden">{`${member.firstName} ${member.lastName}`}</td>
+                  <td className="o-hidden">{member.email}</td>
                   <td className="o-hidden">
                     {!missingDocs.response ? (
                       <span>
-                        <em className="fa fa-question-circle">
-&nbsp;
-                        </em>
+                        <em className="fa fa-question-circle">&nbsp;</em>
                         Not Queued
                       </span>
                     ) : (
                       ''
                     )}
-                    {missingDocs.response
-                    && missingDocs.response.sentTo.indexOf(member.email) !== -1 ? (
+                    {missingDocs.response &&
+                    missingDocs.response.sentTo.indexOf(member.email) !== -1 ? (
                       <span className="text-success">
-                        <em className="fa fa-check-circle">
-&nbsp;
-                        </em>
+                        <em className="fa fa-check-circle">&nbsp;</em>
                         Success
                       </span>
-                      ) : (
-                        ''
-                      )}
-                    {missingDocs.response
-                    && missingDocs.response.errorList.indexOf(member.email) !== -1 ? (
+                    ) : (
+                      ''
+                    )}
+                    {missingDocs.response &&
+                    missingDocs.response.errorList.indexOf(member.email) !== -1 ? (
                       <span className="text-danger">
-                        <em className="fa fa-times-circle">
-&nbsp;
-                        </em>
+                        <em className="fa fa-times-circle">&nbsp;</em>
                         Error
                       </span>
-                      ) : (
-                        ''
-                      )}
+                    ) : (
+                      ''
+                    )}
                   </td>
                 </tr>
               ))}

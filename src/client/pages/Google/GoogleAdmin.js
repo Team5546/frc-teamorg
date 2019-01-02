@@ -6,6 +6,7 @@ import axios from 'axios';
 import Page from '../../components/Page';
 import NavContext from '../../NavContext';
 import AlertBox from '../../helpers/stateless/AlertBox';
+import Panel from '../../helpers/stateless/Panel';
 
 export default class GoogleAdmin extends Component {
   constructor() {
@@ -20,11 +21,11 @@ export default class GoogleAdmin extends Component {
 
   getGoogleGroups() {
     axios.get('/api/v1/google/groups').then(
-      (response) => {
+      response => {
         // console.log(response.data);
         this.setState({ groups: response.data });
       },
-      (err) => {
+      err => {
         this.setState({ errors: { ...err, message: 'Unknow error occured.' } });
       }
     );
@@ -42,53 +43,36 @@ export default class GoogleAdmin extends Component {
               close={() => this.setState({ errors: undefined })}
               type="danger"
             />
-            <div className="panel panel-default">
-              <div className="panel-heading">
-Groups
-              </div>
-              <div className="panel-body">
-                <table className="table">
-                  <thead>
-                    <tr>
+            <Panel title="Groups">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Members</th>
+                    <th />
+                  </tr>
+                </thead>
+                <tbody>
+                  {groups.map(group => (
+                    <tr key={group.name}>
+                      <td className="o-hidden">{group.name}</td>
+                      <td className="o-hidden">{group.email}</td>
+                      <td className="o-hidden">{group.directMembersCount}</td>
                       <td>
-Name
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-info"
+                          onClick={() => setPage('googleGroup', { groupId: group.id })}
+                        >
+                          <i className="fa fa-info" />
+                        </button>
                       </td>
-                      <td>
-Email
-                      </td>
-                      <td>
-Members
-                      </td>
-                      <td />
                     </tr>
-                  </thead>
-                  <tbody>
-                    {groups.map(group => (
-                      <tr key={group.name}>
-                        <td className="o-hidden">
-                          {group.name}
-                        </td>
-                        <td className="o-hidden">
-                          {group.email}
-                        </td>
-                        <td className="o-hidden">
-                          {group.directMembersCount}
-                        </td>
-                        <td>
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-info"
-                            onClick={() => setPage('googleGroup', { groupId: group.id })}
-                          >
-                            <i className="fa fa-info" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                  ))}
+                </tbody>
+              </table>
+            </Panel>
           </Page>
         )}
       </NavContext.Consumer>

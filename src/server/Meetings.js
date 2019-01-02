@@ -66,10 +66,10 @@ meetingsRouter.put('/:id', (req, res) => {
         }
       }
     }
-    console.log(attendance.length);
-    const absent = roster.filter(
-      i => attendance.map(a => a.toString()).indexOf(i.toString()) === -1
-    );
+    // console.log(attendance.length);
+    const absent = attendance
+      ? roster.filter(i => attendance.map(a => a.toString()).indexOf(i.toString()) === -1)
+      : roster;
     Meeting.findByIdAndUpdate(
       id,
       {
@@ -144,12 +144,14 @@ meetingsRouter.put('/:id', (req, res) => {
             // console.log(`sub team attended: ${totalSubTeamMeetingsAttended}`);
             // console.log(`team attended: ${totalTeamMeetingsAttended}`);
 
-            const subTeamMeetingsAttended = totalSubTeamMeetings > 0
-              ? Math.floor((totalSubTeamMeetingsAttended / totalSubTeamMeetings) * 100)
-              : 0;
-            const teamMeetingsAttended = totalTeamMeetings > 0
-              ? Math.floor((totalTeamMeetingsAttended / totalTeamMeetings) * 100)
-              : 0;
+            const subTeamMeetingsAttended =
+              totalSubTeamMeetings > 0
+                ? Math.floor((totalSubTeamMeetingsAttended / totalSubTeamMeetings) * 100)
+                : 0;
+            const teamMeetingsAttended =
+              totalTeamMeetings > 0
+                ? Math.floor((totalTeamMeetingsAttended / totalTeamMeetings) * 100)
+                : 0;
             // console.log('-----Meeting Stats-----');
             // console.log(`sub team: ${subTeamMeetingsAttended}`);
             // console.log(`team: ${teamMeetingsAttended}`);
@@ -202,7 +204,7 @@ meetingsRouter.put('/:id', (req, res) => {
                   },
                   $set: { subTeamMeetingsAttended, teamMeetingsAttended }
                 },
-                (error) => {
+                error => {
                   console.log('Added to array');
                   if (error) console.error(error);
                   if (memberIndex === memberCount - 1) {
@@ -227,7 +229,7 @@ meetingsRouter.put('/:id', (req, res) => {
 
 meetingsRouter.delete('/:id', (req, res) => {
   const { id } = req.params;
-  Meeting.deleteOne({ _id: id }, (err) => {
+  Meeting.deleteOne({ _id: id }, err => {
     console.log('saved');
     if (err) res.status(500).json({ errors: err });
     else res.status(200).send();

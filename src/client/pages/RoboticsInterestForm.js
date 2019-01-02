@@ -6,7 +6,7 @@ import Page from '../components/Page';
 import InterestForm from '../components/InterestForm';
 import AlertBox from '../helpers/stateless/AlertBox';
 
-const emailValid = (email) => {
+const emailValid = email => {
   const emailRegex = /^([A-Za-z0-9_\-.+])+@([A-Za-z0-9_\-.])+\.([A-Za-z]{2,})$/;
   return emailRegex.test(email);
 };
@@ -27,6 +27,10 @@ export default class RoboticsInterestForm extends Component {
     this.addParent = this.addParent.bind(this);
     this.removeParent = this.removeParent.bind(this);
     this.submitForm = this.submitForm.bind(this);
+  }
+
+  componentDidMount() {
+    document.interestForm.firstName.focus();
   }
 
   addParent() {
@@ -102,7 +106,7 @@ export default class RoboticsInterestForm extends Component {
           this.setState({ success: true });
           console.log('added team member');
         },
-        (err) => {
+        err => {
           this.setState({ errors: { ...errors, ...err.response.data.errors } });
         }
       );
@@ -112,7 +116,7 @@ export default class RoboticsInterestForm extends Component {
           this.setState({ success: true });
           console.log('updated team member');
         },
-        (err) => {
+        err => {
           this.setState({ errors: { ...errors, ...err.response.data.errors } });
         }
       );

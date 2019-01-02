@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import UserForm from '../../components/UserForm';
 import UserList from '../../components/UserList';
 import Page from '../../components/Page';
+import Panel from '../../helpers/stateless/Panel';
 
 export default class Users extends Component {
   constructor() {
@@ -31,7 +32,7 @@ export default class Users extends Component {
   }
 
   getUsers() {
-    axios.get('/api/v1/users').then((response) => {
+    axios.get('/api/v1/users').then(response => {
       this.setState({ users: response.data });
     });
   }
@@ -51,7 +52,7 @@ export default class Users extends Component {
           () => {
             this.setState({ duplicateUsername: false });
           },
-          (err) => {
+          err => {
             // console.log(err.response.status);
             if (err.response.status === 422) {
               this.setState({ duplicateUsername: true });
@@ -63,7 +64,9 @@ export default class Users extends Component {
 
   handleCheckboxChange(event) {
     const { selectedUser } = this.state;
-    this.setState({ selectedUser: { ...selectedUser, [event.target.id]: event.target.checked } });
+    this.setState({
+      selectedUser: { ...selectedUser, [event.target.id]: event.target.checked }
+    });
   }
 
   submitEdit(currentUser, updateUserFunc) {
@@ -76,18 +79,20 @@ export default class Users extends Component {
     };
     this.setState({ errors: undefined });
     axios.put(`/api/v1/users/${selectedUser._id}`, newUser).then(
-      (response) => {
+      response => {
         this.getUsers();
         this.setState({ selectedUser: undefined });
         if (currentUser._id === response.data._id) {
           updateUserFunc(newUser);
         }
       },
-      (err) => {
+      err => {
         if (err.response.status === 422) {
           this.setState({ ...err.response.data });
         } else {
-          this.setState({ errors: { message: 'An unkown error has occurred' } });
+          this.setState({
+            errors: { message: 'An unkown error has occurred' }
+          });
         }
       }
     );
@@ -128,16 +133,14 @@ export default class Users extends Component {
         this.setState({ selectedUser: undefined });
         this.getUsers();
       },
-      (err) => {
+      err => {
         console.log(err.response.data);
       }
     );
   }
 
   render() {
-    const {
-      users, selectedUser, errors, duplicateUsername, editing
-    } = this.state;
+    const { users, selectedUser, errors, duplicateUsername, editing } = this.state;
     return (
       <Page title="Internal Users" parentPage="Users">
         {errors && errors.message ? (
@@ -163,29 +166,28 @@ export default class Users extends Component {
           />
         ) : (
           <div className="row">
-            <div className="col-lg-12">
-              <div className="panel panel-default">
-                <div className="panel-header">
-                  <div className="panel-heading">
-                    <button
-                      type="button"
-                      className="pull-right btn btn-md btn-default"
-                      onClick={() => this.setState({ selectedUser: { isActive: true }, editing: false })
-                      }
-                    >
-                      <em className="fa fa-plus" />
-                    </button>
-                  </div>
-                </div>
-                <div className="panel-body">
-                  <UserList
-                    users={users}
-                    selectUser={_user => this.setState({ selectedUser: _user, editing: true })}
-                    deleteUser={index => this.delete(index)}
-                    cancelDelete={index => this.cancelDelete(index)}
-                  />
-                </div>
-              </div>
+            <div className="col-12">
+              <Panel
+                buttons={[
+                  {
+                    icon: 'plus',
+                    func: () =>
+                      this.setState({
+                        selectedUser: { isActive: true },
+                        editing: false
+                      }),
+                    key: 'addUser',
+                    type: 'success'
+                  }
+                ]}
+              >
+                <UserList
+                  users={users}
+                  selectUser={_user => this.setState({ selectedUser: _user, editing: true })}
+                  deleteUser={index => this.delete(index)}
+                  cancelDelete={index => this.cancelDelete(index)}
+                />
+              </Panel>
             </div>
           </div>
         )}

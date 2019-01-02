@@ -27,35 +27,42 @@ export default class Subteams extends Component {
   }
 
   getMembers() {
-    axios.get('/api/v1/teamMembers').then((response) => {
+    axios.get('/api/v1/teamMembers').then(response => {
       const members = {};
       response.data
         .filter(entry => !entry.leftTeam)
-        .map(entry => entry.subTeams.map((subTeam) => {
-          if (!members[subTeam]) {
-            members[subTeam] = [];
+        .map(entry => {
+          if (!entry.leftTeam) {
+            entry.subTeams.map(subTeam => {
+              if (!members[subTeam]) {
+                members[subTeam] = [];
+              }
+              return members[subTeam].push(entry);
+            });
           }
-          return members[subTeam].push(entry);
-        }));
+          return;
+        });
       console.log(members);
       this.setState({ members });
     });
   }
 
   getGroups() {
-    axios.get('/api/v1/google/groups').then((response) => {
+    axios.get('/api/v1/google/groups').then(response => {
       const groups = [];
-      response.data.map(group => axios.get(`/api/v1/google/groups/${group.id}`).then((res) => {
-        groups[group.email] = res.data;
-        this.setState({ groups });
-      }));
+      response.data.map(group =>
+        axios.get(`/api/v1/google/groups/${group.id}`).then(res => {
+          groups[group.email] = res.data;
+          this.setState({ groups });
+        })
+      );
       // console.log(groups);
     });
   }
 
   toggleGroup(group) {
     const { showGroups, groups } = this.state;
-    axios.get(`/api/v1/google/groups/${group}@argsrobotics.com`).then((response) => {
+    axios.get(`/api/v1/google/groups/${group}@argsrobotics.com`).then(response => {
       groups[group.email] = response.data;
       showGroups[group] = !showGroups[group];
       this.setState({ showGroups, groups });
@@ -69,12 +76,12 @@ export default class Subteams extends Component {
     const subTeamMembers = members[team];
 
     axios.get(`/api/v1/google/groups/${team}@argsrobotics.com`).then(
-      (response) => {
+      response => {
         const { members: resMembers } = response.data;
 
         const groupMembers = resMembers || [];
 
-        groupMembers.forEach((member) => {
+        groupMembers.forEach(member => {
           if (member.email.indexOf('@args.us')) {
             if (subTeamMembers.filter(val => val.email === member.email).length === 0) {
               toRemove.push(member.id);
@@ -82,7 +89,7 @@ export default class Subteams extends Component {
           }
         });
 
-        subTeamMembers.forEach((member) => {
+        subTeamMembers.forEach(member => {
           if (groupMembers.filter(val => val.email === member.email).length === 0) {
             toAdd.push(member.email);
           }
@@ -94,16 +101,17 @@ export default class Subteams extends Component {
         axios
           .put(`/api/v1/google/groups/${team}@argsrobotics.com/updateMembers`, { toAdd, toRemove })
           .then(
-            (res) => {
+            res => {
               console.log(res.data);
+              this.getGroups();
               this.toggleGroup(team);
             },
-            (err) => {
+            err => {
               console.error(err);
             }
           );
       },
-      (err) => {
+      err => {
         console.error(err);
       }
     );
@@ -125,42 +133,44 @@ export default class Subteams extends Component {
           <Subteam
             title="Programming Team"
             members={members.programming}
-            group={groups['testteam@argsrobotics.com']}
+            group={groups['programming@argsrobotics.com']}
             showGroup={showGroups.programming}
             toggleGroup={() => this.toggleGroup('programming')}
-            updateGroup={() => this.updateGroup('programming', groups['testteam@argsrobotics.com'])}
+            updateGroup={() =>
+              this.updateGroup('programming', groups['programming@argsrobotics.com'])
+            }
           />
           <Subteam
             title="Safety Team"
             members={members.safety}
-            group={groups['testteam@argsrobotics.com']}
+            group={groups['safety@argsrobotics.com']}
             showGroup={showGroups.safety}
             toggleGroup={() => this.toggleGroup('safety')}
-            updateGroup={() => this.updateGroup('safety', groups['testteam@argsrobotics.com'])}
+            updateGroup={() => this.updateGroup('safety', groups['safety@argsrobotics.com'])}
           />
           <Subteam
             title="PR Team"
             members={members.pr}
-            group={groups['testteam@argsrobotics.com']}
+            group={groups['pr@argsrobotics.com']}
             showGroup={showGroups.pr}
             toggleGroup={() => this.toggleGroup('pr')}
-            updateGroup={() => this.updateGroup('pr', groups['testteam@argsrobotics.com'])}
+            updateGroup={() => this.updateGroup('pr', groups['pr@argsrobotics.com'])}
           />
           <Subteam
             title="Business Team"
             members={members.business}
-            group={groups['testteam@argsrobotics.com']}
+            group={groups['business@argsrobotics.com']}
             showGroup={showGroups.business}
             toggleGroup={() => this.toggleGroup('business')}
-            updateGroup={() => this.updateGroup('business', groups['testteam@argsrobotics.com'])}
+            updateGroup={() => this.updateGroup('business', groups['business@argsrobotics.com'])}
           />
           <Subteam
             title="Scouting Team"
             members={members.scouting}
-            group={groups['testteam@argsrobotics.com']}
+            group={groups['scouting@argsrobotics.com']}
             showGroup={showGroups.scouting}
             toggleGroup={() => this.toggleGroup('scouting')}
-            updateGroup={() => this.updateGroup('scouting', groups['testteam@argsrobotics.com'])}
+            updateGroup={() => this.updateGroup('scouting', groups['scouting@argsrobotics.com'])}
           />
         </div>
       </Page>

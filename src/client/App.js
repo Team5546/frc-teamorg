@@ -1,3 +1,11 @@
+// Import CSS
+import './css/datepicker3.css';
+import './css/styles.css';
+
+// Import JS
+import './js/bootstrap-datepicker.js';
+import './js/custom.js';
+
 import React, { Component } from 'react';
 // import './app.scss';
 import cookie from 'react-cookies';
@@ -44,7 +52,7 @@ export default class App extends Component {
     const { sessionId } = this.state;
     if (sessionId) {
       axios.get(`/api/v1/sessions/${sessionId}`).then(
-        (response) => {
+        response => {
           this.setUser(response.data.userId);
         },
         () => {
@@ -65,12 +73,20 @@ export default class App extends Component {
 
   componentDidMount() {
     const { userContext } = this.state;
-    this.setState({ userContext: { ...userContext, updateUser: this.updateUser } });
+    this.setState({
+      userContext: { ...userContext, updateUser: this.updateUser }
+    });
     const page = cookie.load('page');
     if (page) this.setPage(page);
     window.addEventListener('resize', () => {
       if (window.innerWidth < 768) this.setState({ showSideMenu: true });
     });
+    // $('.list-group-item').on('click', () => {
+    //   console.log($('.list-group-item').has('a[aria-expanded="true"]'));
+    //   $('.list-group-item')
+    //     .has('a[aria-expanded="true"]')
+    //     .css('background-color', '#f0f0f0');
+    // });
   }
 
   getShowSideMenu() {
@@ -79,7 +95,7 @@ export default class App extends Component {
   }
 
   setUser(userId) {
-    axios.get(`/api/v1/users/${userId}`).then((response) => {
+    axios.get(`/api/v1/users/${userId}`).then(response => {
       const { userContext } = this.state;
       this.setState({ userContext: { ...userContext, user: response.data } });
     });
@@ -112,12 +128,12 @@ export default class App extends Component {
         password: state.password
       })
       .then(
-        (response) => {
+        response => {
           if (state.rememberMe) cookie.save('sessionId', response.data.sessionId, { path: '/' });
           this.setUser(response.data.userId);
           this.setPage('dashboard');
         },
-        (err) => {
+        err => {
           this.setState({ errors: { message: 'An unexpected error occured' } });
           this.setState({ errors: { ...err.response.data.errors } });
         }
@@ -136,13 +152,13 @@ export default class App extends Component {
         createdAt: new Date()
       })
       .then(
-        (response) => {
+        response => {
           cookie.save('sessionId', response.data.sessionId, { path: '/' });
           this.setUser(response.data.userId);
           this.setPage('home');
           this.forceUpdate();
         },
-        (err) => {
+        err => {
           console.error(err);
           this.setState({ errors: err.response.data.errors });
         }
@@ -176,9 +192,7 @@ export default class App extends Component {
   }
 
   render() {
-    const {
-      user, showSideMenu, navContext, userContext, errors
-    } = this.state;
+    const { user, showSideMenu, navContext, userContext, errors } = this.state;
     let visiblePage = null;
 
     if (navContext.page === 'attendance' && !navContext.props) navContext.page = 'meetings';
@@ -236,96 +250,110 @@ export default class App extends Component {
     return (
       <UserContext.Provider value={userContext}>
         <NavContext.Provider value={navContext}>
-          <Nav
-            loggedIn={userContext.user}
-            logout={this.logout}
-            setPage={this.setPage}
-            toggleSideMenu={this.toggleSideMenu}
-            showSideMenu={showSideMenu}
-          />
-          {errors && (
+          <div className="container-fluid">
             <div className="row">
-              <div className="col-xs-10 col-xs-offset-1">
-                <AlertBox
-                  condition={errors !== undefined}
-                  message={`${(errors && errors.message) || ''}\n${(errors && errors.username)
-                    || ''}\n${(errors && errors.password) || ''}`}
-                  close={() => this.setState({ errors: undefined })}
-                  type="danger"
+              <div className="col p-0">
+                <Nav
+                  loggedIn={userContext.user}
+                  logout={this.logout}
+                  setPage={this.setPage}
+                  toggleSideMenu={this.toggleSideMenu}
+                  showSideMenu={showSideMenu}
                 />
               </div>
             </div>
-          )}
-          {userContext.user._id ? (
-            <React.Fragment>
-              {showSideMenu ? (
-                <Sidemenu
-                  logout={this.logout}
-                  isAdmin={this.isAdmin()}
-                  setPage={this.setPage}
-                  links={[
-                    {
-                      name: 'Dashboard',
-                      icon: 'tachometer-alt',
-                      requiresAdmin: true
-                    },
-                    {
-                      name: 'Users',
-                      icon: 'users',
-                      requiresAdmin: true,
-                      subItems: [
+            {errors && (
+              <div className="row">
+                <div className="col-xs-10 col-xs-offset-1">
+                  <AlertBox
+                    condition={errors !== undefined}
+                    message={`${(errors && errors.message) || ''}\n${(errors && errors.username) ||
+                      ''}\n${(errors && errors.password) || ''}`}
+                    close={() => this.setState({ errors: undefined })}
+                    type="danger"
+                  />
+                </div>
+              </div>
+            )}
+            <div className="row">
+              {userContext.user._id ? (
+                <React.Fragment>
+                  {showSideMenu ? (
+                    <Sidemenu
+                      logout={this.logout}
+                      isAdmin={this.isAdmin()}
+                      setPage={this.setPage}
+                      links={[
                         {
-                          name: 'Internal Users',
-                          pageName: 'users'
+                          name: 'Dashboard',
+                          icon: 'tachometer-alt',
+                          requiresAdmin: true
                         },
                         {
-                          name: 'Team Members'
-                        }
-                      ]
-                    },
-                    {
-                      name: 'Interest Form',
-                      icon: 'address-book',
-                      requiresAdmin: true
-                    },
-                    {
-                      name: 'Sub Teams',
-                      icon: 'list-ul',
-                      requiresAdmin: true
-                    },
-                    {
-                      name: 'Meetings',
-                      icon: 'calendar',
-                      requiresAdmin: true
-                    },
-                    {
-                      name: 'Account',
-                      icon: 'user-circle'
-                    },
-                    {
-                      name: 'Google',
-                      icon: 'google',
-                      requiresAdmin: true,
-                      iconBrands: true,
-                      subItems: [
-                        {
-                          name: 'Google Admin'
+                          name: 'Users',
+                          icon: 'users',
+                          requiresAdmin: true,
+                          subItems: [
+                            {
+                              name: 'Internal Users',
+                              pageName: 'users'
+                            },
+                            {
+                              name: 'Team Members'
+                            }
+                          ]
                         },
                         {
-                          name: 'Google Mail'
+                          name: 'Interest Form',
+                          icon: 'address-book',
+                          requiresAdmin: true
+                        },
+                        {
+                          name: 'Sub Teams',
+                          icon: 'list-ul',
+                          requiresAdmin: true
+                        },
+                        {
+                          name: 'Meetings',
+                          icon: 'calendar',
+                          requiresAdmin: true
+                        },
+                        {
+                          name: 'Account',
+                          icon: 'user-circle'
+                        },
+                        {
+                          name: 'Google',
+                          icon: 'google',
+                          requiresAdmin: true,
+                          iconBrands: true,
+                          subItems: [
+                            {
+                              name: 'Google Admin'
+                            },
+                            {
+                              name: 'Google Mail'
+                            }
+                          ]
                         }
-                      ]
+                      ]}
+                    />
+                  ) : (
+                    <div />
+                  )}
+                  <div
+                    className={
+                      showSideMenu ? 'col col-md-10 offset-md-2 page-scroll' : 'col page-scroll'
                     }
-                  ]}
-                />
+                  >
+                    {visiblePage}
+                  </div>
+                </React.Fragment>
               ) : (
-                <div />
+                <Landing login={this.login} />
               )}
-              {visiblePage}
-            </React.Fragment>
-          ) : (
-            <Landing login={this.login} />
-          )}
+            </div>
+          </div>
         </NavContext.Provider>
       </UserContext.Provider>
     );

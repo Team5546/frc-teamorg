@@ -4,6 +4,7 @@ import moment from 'moment';
 import { PropTypes } from 'prop-types';
 import Page from '../components/Page';
 import NavContext from '../NavContext';
+import Panel from '../helpers/stateless/Panel';
 
 export default class Attendance extends Component {
   constructor(props) {
@@ -24,9 +25,9 @@ export default class Attendance extends Component {
   getMembers() {
     const { meeting, members } = this.state;
     console.log(meeting.roster);
-    meeting.roster.forEach((memberId) => {
+    meeting.roster.forEach(memberId => {
       axios.get(`api/v1/teamMembers/${memberId}`).then(
-        (response) => {
+        response => {
           members.push(response.data);
           if (meeting.attendance.length === 0) meeting.absent.push(response.data._id);
           this.setState({ members, meeting });
@@ -133,74 +134,69 @@ export default class Attendance extends Component {
               .join(', ')} Meeting`}
           >
             <div className="row">
-              <div className="col-md-12">
-                <div className="panel panel-default">
-                  <div className="panel-heading">
-                    {`${moment(meeting.date).format('MM/DD/YY')} - ${meeting.subTeams
-                      .map(team => team.substring(0, 1).toUpperCase() + team.substring(1))
-                      .join(', ')} Meeting`}
-                  </div>
-                  <div className="panel-body">
-                    <div className="row">
-                      {members
-                        && members.map(member => (
-                          <div
-                            className="col-xs-4 col-sm-4 col-md-3"
-                            key={`${member.firstName}${member.lastName}`}
-                          >
-                            <dl>
-                              <dt>
-                                {`${member.firstName} ${member.lastName}`}
-                              </dt>
-                              <dl>
-                                <button
-                                  type="button"
-                                  className={`btn btn-sm btn-${
-                                    this.getHere(member._id) ? 'success' : 'danger'
-                                  }`}
-                                  onClick={() => this.toggleHere(member._id)}
-                                >
-                                  <em
-                                    className={`fa fa-${
-                                      this.getHere(member._id) ? 'check' : 'times'
-                                    }`}
-                                  >
-                                    &nbsp;
-                                  </em>
-                                  {this.getHere(member._id) ? 'Here' : 'Absent'}
-                                </button>
-                              </dl>
-                            </dl>
-                          </div>
-                        ))}
-                    </div>
-                    <hr />
-                    <div className="row">
-                      <div className="col-sm-12">
+              <div className="col">
+                <Panel
+                  title={`${moment(meeting.date).format('MM/DD/YY')} - ${meeting.subTeams
+                    .map(team => team.substring(0, 1).toUpperCase() + team.substring(1))
+                    .join(', ')} Meeting`}
+                >
+                  <div className="row">
+                    {members &&
+                      members.map(member => (
                         <div
-                          className="btn-group btn-group-sm"
-                          role="group"
-                          aria-label="User Actions"
+                          className="col-xs-4 col-sm-4 col-md-3"
+                          key={`${member.firstName}${member.lastName}`}
                         >
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-info"
-                            onClick={() => this.submitAttendance().then(() => setPage('meetings'))}
-                          >
-                            Submit Attendance
-                          </button>
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-default"
-                            onClick={() => setPage('meetings')}
-                          >
-                            Cancel
-                          </button>
+                          <dl>
+                            <dt>{`${member.firstName} ${member.lastName}`}</dt>
+                            <dl>
+                              <button
+                                type="button"
+                                className={`btn btn-sm btn-${
+                                  this.getHere(member._id) ? 'success' : 'danger'
+                                }`}
+                                onClick={() => this.toggleHere(member._id)}
+                              >
+                                <em
+                                  className={`fa fa-${
+                                    this.getHere(member._id) ? 'check' : 'times'
+                                  }`}
+                                >
+                                  &nbsp;
+                                </em>
+                                {this.getHere(member._id) ? 'Here' : 'Absent'}
+                              </button>
+                            </dl>
+                          </dl>
                         </div>
+                      ))}
+                  </div>
+                  <hr />
+                  <div className="row">
+                    <div className="col-sm-12">
+                      <div
+                        className="btn-group btn-group-sm"
+                        role="group"
+                        aria-label="User Actions"
+                      >
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-info"
+                          onClick={() => this.submitAttendance().then(() => setPage('meetings'))}
+                        >
+                          Submit Attendance
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-default"
+                          onClick={() => setPage('meetings')}
+                        >
+                          Cancel
+                        </button>
                       </div>
                     </div>
                   </div>
-                </div>
+                </Panel>
               </div>
             </div>
           </Page>

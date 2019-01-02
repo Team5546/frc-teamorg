@@ -7,8 +7,8 @@ import axios from 'axios';
 import { Bar, defaults } from 'react-chartjs-2';
 import camelcase from 'camelcase';
 import Page from '../components/Page';
-
-const { $ } = window;
+import EasyPieChart from 'easy-pie-chart';
+import Panel from '../helpers/stateless/Panel';
 
 defaults.global.legend.display = false;
 // console.log($);
@@ -42,7 +42,7 @@ export default class Dashboard extends Component {
   }
 
   getInterestEntries() {
-    axios.get('/api/v1/teamMembers').then((response) => {
+    axios.get('/api/v1/teamMembers').then(response => {
       const interestByMajor = [];
       const { graphs, stats } = this.state;
       for (const entry of response.data) {
@@ -73,10 +73,15 @@ export default class Dashboard extends Component {
           default:
             break;
         }
-        if (entry.studentContract && entry.parentContract && entry.medicalForm && entry.duesPaid) stats.totalFullMembers += 1;
+        if (entry.studentContract && entry.parentContract && entry.medicalForm && entry.duesPaid)
+          stats.totalFullMembers += 1;
       }
       this.setState({
-        stats: { ...stats, interestByMajor, totalTeamMembers: response.data.length },
+        stats: {
+          ...stats,
+          interestByMajor,
+          totalTeamMembers: response.data.length
+        },
         graphs
       });
       this.updateGraphs();
@@ -84,7 +89,7 @@ export default class Dashboard extends Component {
   }
 
   getMeetings() {
-    axios.get('/api/v1/meetings').then((response) => {
+    axios.get('/api/v1/meetings').then(response => {
       const { stats } = this.state;
       stats.subTeamMeetings = 0;
       stats.entireTeamMeetings = 0;
@@ -138,179 +143,152 @@ export default class Dashboard extends Component {
     const percentSophomores = findDOMNode(this.refs.percentSophomores);
     const percentJuniors = findDOMNode(this.refs.percentJuniors);
     const percentSeniors = findDOMNode(this.refs.percentSeniors);
-    $(percentFreshmen).easyPieChart({
+    const freshmen = new EasyPieChart(percentFreshmen, {
       scaleColor: false,
       barColor: '#30a5ff'
     });
-    $(percentSophomores).easyPieChart({
+    const sophomores = new EasyPieChart(percentSophomores, {
       scaleColor: false,
       barColor: '#ffb53e'
     });
-    $(percentJuniors).easyPieChart({
+    const juniors = new EasyPieChart(percentJuniors, {
       scaleColor: false,
       barColor: '#1ebfae'
     });
-    $(percentSeniors).easyPieChart({
+    const seniors = new EasyPieChart(percentSeniors, {
       scaleColor: false,
       barColor: '#f9243f'
     });
+    // $(percentFreshmen).easyPieChart({
+    //   scaleColor: false,
+    //   barColor: "#30a5ff"
+    // });
+    // $(percentSophomores).easyPieChart({
+    //   scaleColor: false,
+    //   barColor: "#ffb53e"
+    // });
+    // $(percentJuniors).easyPieChart({
+    //   scaleColor: false,
+    //   barColor: "#1ebfae"
+    // });
+    // $(percentSeniors).easyPieChart({
+    //   scaleColor: false,
+    //   barColor: "#f9243f"
+    // });
     this.setState({ graphData, graphs });
   }
 
   render() {
-    const {
-      graphData, graphs, stats, showGraph
-    } = this.state;
-    const {
-      totalTeamMembers, totalFullMembers, subTeamMeetings, entireTeamMeetings
-    } = stats;
+    const { graphData, graphs, stats, showGraph } = this.state;
+    const { totalTeamMembers, totalFullMembers, subTeamMeetings, entireTeamMeetings } = stats;
     return (
       <Page title="Dashboard">
-        <div className="panel panel-container">
-          <div className="row">
-            <div className="col-xs-6 col-md-3 col-lg-3 no-padding">
-              <div className="panel panel-teal panel-widget border-right">
-                <div className="row no-padding">
-                  <em className="fa fa-address-book fa-2x color-blue" />
-                  <div className="large">
-                    {totalTeamMembers}
-                  </div>
-                  <div className="text-muted">
-Interest Form Entries
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-xs-6 col-md-3 col-lg-3 no-padding">
-              <div className="panel panel-blue panel-widget border-right">
-                <div className="row no-padding">
-                  <em className="fa fa-2x fa-users color-orange" />
-                  <div className="large">
-                    {totalFullMembers}
-                  </div>
-                  <div className="text-muted">
-Full Members
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-xs-6 col-md-3 col-lg-3 no-padding">
-              <div className="panel panel-orange panel-widget border-right">
-                <div className="row no-padding">
-                  <em className="fa fa-xl fa-sitemap color-teal" />
-                  <div className="large">
-                    {subTeamMeetings}
-                  </div>
-                  <div className="text-muted">
-Sub Team Meetings
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-xs-6 col-md-3 col-lg-3 no-padding">
-              <div className="panel panel-red panel-widget ">
-                <div className="row no-padding">
-                  <em className="fa fa-xl fa-chair color-red" />
-                  <div className="large">
-                    {entireTeamMeetings}
-                  </div>
-                  <div className="text-muted">
-Entire Team Meetings
-                  </div>
-                </div>
-              </div>
+        <div className="row mb-2">
+          <div className="col">
+            <div className="card-group text-center">
+              <Panel>
+                <em className="fa fa-address-book fa-2x color-blue" />
+                <div className="large">{totalTeamMembers}</div>
+                <div className="text-muted">Interest Form Entries</div>
+              </Panel>
+              <Panel>
+                <em className="fa fa-2x fa-users color-orange" />
+                <div className="large">{totalFullMembers}</div>
+                <div className="text-muted">Full Members</div>
+              </Panel>
+              <Panel>
+                <em className="fa fa-xl fa-sitemap color-teal" />
+                <div className="large">{subTeamMeetings}</div>
+                <div className="text-muted">Sub Team Meetings</div>
+              </Panel>
+              <Panel>
+                <em className="fa fa-xl fa-chair color-red" />
+                <div className="large">{entireTeamMeetings}</div>
+                <div className="text-muted">Entire Team Meetings</div>
+              </Panel>
             </div>
           </div>
         </div>
-        <div className="row">
-          <div className="col-md-12">
-            <div className="panel panel-default">
-              <div className="panel-heading">
-                Signups By Major
-                <ul className="pull-right panel-settings panel-button-tab-right">
-                  <li className="dropdown">
-                    <a className="pull-right dropdown-toggle" data-toggle="dropdown" href="">
-                      <em className="fa fa-cogs" />
-                    </a>
-                    <ul className="dropdown-menu dropdown-menu-right">
-                      <li>
-                        <ul className="dropdown-settings">
-                          {Object.keys(graphs.majorsShowing).map((maj, i) => (
-                            <React.Fragment key={maj}>
-                              {i > 0 && <li className="divider" />}
-                              <li>
-                                <a href="#" onClick={() => this.updateGraphs(maj)}>
-                                  <em
-                                    className={`fa fa-toggle-${
-                                      graphs.majorsShowing[maj] ? 'on' : 'off'
-                                    }`}
-                                  />
-                                  {maj}
-                                </a>
-                              </li>
-                            </React.Fragment>
-                          ))}
-                        </ul>
-                      </li>
-                    </ul>
-                  </li>
-                </ul>
-                <span
-                  className="pull-right clickable panel-toggle panel-button-tab-left"
-                  onClick={() => this.setState({ showGraph: !showGraph || false })}
-                >
-                  <em className={`fa fa-caret-square-${showGraph ? 'up' : 'down'}`} />
-                </span>
-              </div>
-              <div className="panel-body">
-                <div className="canvas-wrapper">
-                  {graphData && (
-                    <Bar
-                      className="main-chart"
-                      data={graphData}
-                      options={{
-                        scales: {
-                          yAxes: [
-                            {
-                              stacked: false,
-                              gridLines: {
-                                display: true,
-                                color: 'rgba(0,0,0,.2)'
-                              },
-                              ticks: {
-                                beginAtZero: true,
-                                suggestedMax: 5,
-                                stepSize: 1
-                              }
+        <div className="row my-2">
+          <div className="col">
+            <Panel
+              title="Signups By Major"
+              header={
+                <React.Fragment>
+                  <button
+                    className="btn btn-default dropdown-toggle float-right"
+                    type="button"
+                    data-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    <em className="fa fa-cogs" />
+                  </button>
+                  <div className="dropdown-menu">
+                    {Object.keys(graphs.majorsShowing).map((maj, i) => (
+                      <React.Fragment key={maj}>
+                        {i > 0 && <div role="separator" className="dropdown-divider" />}
+                        <a
+                          className="dropdown-item"
+                          href="#"
+                          onClick={() => this.updateGraphs(maj)}
+                        >
+                          <em
+                            className={`fa fa-toggle-${graphs.majorsShowing[maj] ? 'on' : 'off'}`}
+                          />
+                          {maj}
+                        </a>
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </React.Fragment>
+              }
+            >
+              <div className="canvas-wrapper">
+                {graphData && (
+                  <Bar
+                    className="main-chart"
+                    data={graphData}
+                    options={{
+                      scales: {
+                        yAxes: [
+                          {
+                            stacked: false,
+                            gridLines: {
+                              display: true,
+                              color: 'rgba(0,0,0,.2)'
+                            },
+                            ticks: {
+                              beginAtZero: true,
+                              suggestedMax: 5,
+                              stepSize: 1
                             }
-                          ],
-                          xAxes: [
-                            {
-                              stacked: false,
-                              gridLines: {
-                                display: false,
-                                color: 'rgba(0,0,0,.2)'
-                              }
+                          }
+                        ],
+                        xAxes: [
+                          {
+                            stacked: false,
+                            gridLines: {
+                              display: false,
+                              color: 'rgba(0,0,0,.2)'
                             }
-                          ]
-                        },
-                        scaleGridLineColor: 'rgba(0,0,0,.05)',
-                        scaleFontColor: '#c5c7cc'
-                      }}
-                    />
-                  )}
-                </div>
+                          }
+                        ]
+                      },
+                      scaleGridLineColor: 'rgba(0,0,0,.05)',
+                      scaleFontColor: '#c5c7cc'
+                    }}
+                  />
+                )}
               </div>
-            </div>
+            </Panel>
           </div>
         </div>
-        <div className="row">
-          <div className="col-xs-6 col-md-3">
-            <div className="panel panel-default">
-              <div className="panel-body easypiechart-panel">
-                <h4>
-Freshmen
-                </h4>
+        <div className="row my-2">
+          <div className="col">
+            <div className="card-group text-center">
+              <Panel>
+                <h4>Freshmen</h4>
                 <div
                   className="easypiechart"
                   id="easypiechart-blue"
@@ -320,19 +298,12 @@ Freshmen
                   )}
                 >
                   <span className="percent">
-                    {((stats.interestByGrade[0] / stats.totalTeamMembers) * 100).toFixed(1)}
-%
+                    {((stats.interestByGrade[0] / stats.totalTeamMembers) * 100).toFixed(1)}%
                   </span>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div className="col-xs-6 col-md-3">
-            <div className="panel panel-default">
-              <div className="panel-body easypiechart-panel">
-                <h4>
-Sophomores
-                </h4>
+              </Panel>
+              <Panel>
+                <h4>Sophomores</h4>
                 <div
                   className="easypiechart"
                   id="easypiechart-orange"
@@ -342,19 +313,12 @@ Sophomores
                   )}
                 >
                   <span className="percent">
-                    {((stats.interestByGrade[1] / stats.totalTeamMembers) * 100).toFixed(1)}
-%
+                    {((stats.interestByGrade[1] / stats.totalTeamMembers) * 100).toFixed(1)}%
                   </span>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div className="col-xs-6 col-md-3">
-            <div className="panel panel-default">
-              <div className="panel-body easypiechart-panel">
-                <h4>
-Juniors
-                </h4>
+              </Panel>
+              <Panel>
+                <h4>Juniors</h4>
                 <div
                   className="easypiechart"
                   id="easypiechart-teal"
@@ -364,19 +328,12 @@ Juniors
                   )}
                 >
                   <span className="percent">
-                    {((stats.interestByGrade[2] / stats.totalTeamMembers) * 100).toFixed(1)}
-%
+                    {((stats.interestByGrade[2] / stats.totalTeamMembers) * 100).toFixed(1)}%
                   </span>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div className="col-xs-6 col-md-3">
-            <div className="panel panel-default">
-              <div className="panel-body easypiechart-panel">
-                <h4>
-Seniors
-                </h4>
+              </Panel>
+              <Panel>
+                <h4>Seniors</h4>
                 <div
                   className="easypiechart"
                   id="easypiechart-red"
@@ -386,11 +343,10 @@ Seniors
                   )}
                 >
                   <span className="percent">
-                    {((stats.interestByGrade[3] / stats.totalTeamMembers) * 100).toFixed(1)}
-%
+                    {((stats.interestByGrade[3] / stats.totalTeamMembers) * 100).toFixed(1)}%
                   </span>
                 </div>
-              </div>
+              </Panel>
             </div>
           </div>
         </div>

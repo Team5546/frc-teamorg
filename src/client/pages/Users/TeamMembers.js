@@ -7,6 +7,7 @@ import Page from '../../components/Page';
 import AlertBox from '../../helpers/stateless/AlertBox';
 import Table from '../../helpers/stateless/Table';
 import NavContext from '../../NavContext';
+import Panel from '../../helpers/stateless/Panel';
 
 export default class TeamMembers extends Component {
   constructor() {
@@ -25,7 +26,7 @@ export default class TeamMembers extends Component {
   }
 
   getTeamMembers() {
-    axios.get('/api/v1/teamMembers').then((response) => {
+    axios.get('/api/v1/teamMembers').then(response => {
       this.setState({ teamMembers: response.data });
       this.sort('name');
     });
@@ -67,9 +68,7 @@ export default class TeamMembers extends Component {
   }
 
   sortFilterSearch() {
-    const {
-      teamMembers, sortBy, filterBy, search
-    } = this.state;
+    const { teamMembers, sortBy, filterBy, search } = this.state;
     const sortOption = sortBy;
     const filterOption = filterBy;
     // console.log(sortOption, filterOption);
@@ -117,20 +116,22 @@ export default class TeamMembers extends Component {
         break;
       case 'contractsUp':
         tempMembers.sort(
-          (a, b) => [b.studentContract ? 1 : 0, b.parentContract ? 1 : 0, b.medicalForm ? 1 : 0].reduce(
-            (total, num) => total + num
-          )
-            - [a.studentContract ? 1 : 0, a.parentContract ? 1 : 0, a.medicalForm ? 1 : 0].reduce(
+          (a, b) =>
+            [b.studentContract ? 1 : 0, b.parentContract ? 1 : 0, b.medicalForm ? 1 : 0].reduce(
+              (total, num) => total + num
+            ) -
+            [a.studentContract ? 1 : 0, a.parentContract ? 1 : 0, a.medicalForm ? 1 : 0].reduce(
               (total, num) => total + num
             )
         );
         break;
       case 'contractsDown':
         tempMembers.sort(
-          (a, b) => [a.studentContract ? 1 : 0, a.parentContract ? 1 : 0, a.medicalForm ? 1 : 0].reduce(
-            (total, num) => total + num
-          )
-            - [b.studentContract ? 1 : 0, b.parentContract ? 1 : 0, b.medicalForm ? 1 : 0].reduce(
+          (a, b) =>
+            [a.studentContract ? 1 : 0, a.parentContract ? 1 : 0, a.medicalForm ? 1 : 0].reduce(
+              (total, num) => total + num
+            ) -
+            [b.studentContract ? 1 : 0, b.parentContract ? 1 : 0, b.medicalForm ? 1 : 0].reduce(
               (total, num) => total + num
             )
         );
@@ -173,8 +174,13 @@ export default class TeamMembers extends Component {
     }
     if (search) {
       tempMembers = tempMembers.filter(
-        member => `${member.firstName} ${member.lastName}`.toLowerCase().indexOf(search.toLowerCase())
-            > -1 || member.email.substring(0, member.email.indexOf('@')).toLowerCase().indexOf(search.toLowerCase()) > -1
+        member =>
+          `${member.firstName} ${member.lastName}`.toLowerCase().indexOf(search.toLowerCase()) >
+            -1 ||
+          member.email
+            .substring(0, member.email.indexOf('@'))
+            .toLowerCase()
+            .indexOf(search.toLowerCase()) > -1
       );
     }
 
@@ -187,9 +193,7 @@ export default class TeamMembers extends Component {
   }
 
   render() {
-    const {
-      formattedTeamMembers, errors, membersLength, sortBy, search
-    } = this.state;
+    const { formattedTeamMembers, errors, membersLength, sortBy, search } = this.state;
     return (
       <Page title="Team Members" parentPage="Users">
         <AlertBox
@@ -199,11 +203,11 @@ export default class TeamMembers extends Component {
           close={() => this.setState({ errors: {} })}
         />
         <div className="row">
-          <div className="col-lg-12">
-            <div className="panel panel-default">
-              <div className="panel-header">
-                <div className="panel-heading">
-                  <div className="col-md-5">
+          <div className="col">
+            <Panel
+              header={
+                <div className="row">
+                  <div className="col-4">
                     <div className="input-group">
                       <input
                         type="text"
@@ -225,10 +229,10 @@ export default class TeamMembers extends Component {
                       </div>
                     </div>
                   </div>
-                  <div className="col-md-1">
-                    <h4>Filter:</h4>
+                  <div className="col-auto d-flex align-items-center">
+                    <h4 className="my-auto">Filter:</h4>
                   </div>
-                  <div className="col-md-2">
+                  <div className="col-auto">
                     <select className="form-control" onChange={e => this.filter(e.target.value)}>
                       <option value="none">None</option>
                       <option value="missingMeetings">Not Going To Meetings</option>
@@ -237,15 +241,15 @@ export default class TeamMembers extends Component {
                       <option value="nothingMissing">Nothing Missing</option>
                     </select>
                   </div>
-                  <div className="col-md-2">
-                    <h4>{`Total: ${membersLength}`}</h4>
+                  <div className="col-auto d-flex align-items-center">
+                    <h4 className="my-auto">{`Total: ${membersLength}`}</h4>
                   </div>
                   <NavContext.Consumer>
                     {({ setPage }) => (
-                      <div className="col-md-2">
+                      <div className="col">
                         <button
                           type="button"
-                          className="pull-right btn btn-md btn-default"
+                          className="float-right btn btn-md btn-default"
                           style={{
                             marginLeft: 0,
                             borderTopLeftRadius: 0,
@@ -257,7 +261,7 @@ export default class TeamMembers extends Component {
                         </button>
                         <button
                           type="button"
-                          className="pull-right btn btn-md btn-default"
+                          className="float-right btn btn-md btn-default"
                           style={{
                             marginLeft: 0,
                             borderTopRightRadius: 0,
@@ -272,63 +276,62 @@ export default class TeamMembers extends Component {
                     )}
                   </NavContext.Consumer>
                 </div>
-              </div>
-              <div className="panel-body">
-                <Table
-                  columns={[
-                    {
-                      name: 'Name',
-                      sortKey: 'name',
-                      specialData: 'name'
-                    },
-                    {
-                      name: 'Email',
-                      type: 'text'
-                    },
-                    {
-                      name: 'STM %',
-                      key: 'subTeamMeetingsAttended',
-                      type: 'text'
-                    },
-                    {
-                      name: 'TM %',
-                      key: 'teamMeetingsAttended',
-                      type: 'text'
-                    },
-                    {
-                      name: 'Contracts (S/P/M)',
-                      sortKey: 'contracts',
-                      type: 'booleanList',
-                      specialData: 'contracts'
-                    },
-                    {
-                      name: 'Dues Paid',
-                      type: 'boolean'
-                    },
-                    {
-                      name: '',
-                      type: 'controls',
-                      editPage: 'interestForm',
-                      infoPage: 'memberInfo'
-                    }
-                  ]}
-                  data={formattedTeamMembers}
-                  handleSort={this.sort}
-                  currentSort={sortBy}
-                  disabledCol="leftTeam"
-                  specialData={{
-                    name: formattedTeamMembers.map(
-                      member => `${member.firstName} ${member.lastName}`
-                    ),
-                    contracts: formattedTeamMembers.map(member => [
-                      member.studentContract,
-                      member.parentContract,
-                      member.medicalForm
-                    ])
-                  }}
-                />
-              </div>
-            </div>
+              }
+            >
+              <Table
+                columns={[
+                  {
+                    name: 'Name',
+                    sortKey: 'name',
+                    specialData: 'name'
+                  },
+                  {
+                    name: 'Email',
+                    type: 'text'
+                  },
+                  {
+                    name: 'STM %',
+                    key: 'subTeamMeetingsAttended',
+                    type: 'text'
+                  },
+                  {
+                    name: 'TM %',
+                    key: 'teamMeetingsAttended',
+                    type: 'text'
+                  },
+                  {
+                    name: 'Contracts (S/P/M)',
+                    sortKey: 'contracts',
+                    type: 'booleanList',
+                    specialData: 'contracts'
+                  },
+                  {
+                    name: 'Dues Paid',
+                    type: 'boolean'
+                  },
+                  {
+                    name: '',
+                    type: 'controls',
+                    editPage: 'interestForm',
+                    infoPage: 'memberInfo'
+                  }
+                ]}
+                data={formattedTeamMembers}
+                handleSort={this.sort}
+                currentSort={sortBy}
+                disabledCol="leftTeam"
+                specialData={{
+                  name: formattedTeamMembers.map(
+                    member => `${member.firstName} ${member.lastName}`
+                  ),
+                  contracts: formattedTeamMembers.map(member => [
+                    member.studentContract,
+                    member.parentContract,
+                    member.medicalForm
+                  ])
+                }}
+              />
+            </Panel>
           </div>
         </div>
       </Page>
