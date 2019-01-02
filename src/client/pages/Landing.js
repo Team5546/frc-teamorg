@@ -4,8 +4,9 @@ import axios from 'axios';
 import './styles/Landing.scss';
 import phoneFormat from 'phone-formatter';
 import InterestForm from '../components/InterestForm';
+import Panel from '../helpers/stateless/Panel';
 
-const emailValid = (email) => {
+const emailValid = email => {
   const emailRegex = /^([A-Za-z0-9_\-.+])+@([A-Za-z0-9_\-.])+\.([A-Za-z]{2,})$/;
   return emailRegex.test(email);
 };
@@ -124,7 +125,7 @@ export default class Landing extends Component {
           this.setState({ success: true });
           console.log('added team member');
         },
-        (err) => {
+        err => {
           this.setState({ errors: { ...errors, ...err.response.data.errors } });
         }
       );
@@ -134,7 +135,7 @@ export default class Landing extends Component {
           this.setState({ success: true });
           console.log('updated team member');
         },
-        (err) => {
+        err => {
           this.setState({ errors: { ...errors, ...err.response.data.errors } });
         }
       );
@@ -149,7 +150,8 @@ export default class Landing extends Component {
       showLogin,
       showInterestForm,
       teamMember,
-      errors
+      errors,
+      success
     } = this.state;
     const { login } = this.props;
     return (
@@ -157,31 +159,21 @@ export default class Landing extends Component {
         {!showLogin && !showInterestForm && (
           <React.Fragment>
             <div className="hero d-flex justify-content-center align-items-center">
-              <h1 className="display-1 text-white align-center">
-WELCOME TO TEAM ORG
-              </h1>
+              <h1 className="display-4 text-white align-center">WELCOME TO TEAM ORG</h1>
             </div>
             <div className="row d-flex align-items-center" style={{ marginTop: '3rem' }}>
-              <div className="col-xs-10 col-xs-offset-1 col-md-5 col-md-offset-1">
-                <div className="panel panel-default">
-                  <div className="panel-body">
-                    <h1>
-FRC Team 5546 A.R.T.
-                    </h1>
-                    <p>
-                      Welcome to FRC TeamOrg. If you are not on the team, you can fill out the
-                      interest form. If you are team leadership, please ensure you have an account,
-                      then login. If there are any issues, please contact
-                      {' '}
-                      <a href="mailto:bradley@argsrobotics.com">
-webmail@argsrobotics.com
-                      </a>
-.
-                    </p>
-                  </div>
-                </div>
+              <div className="col col-md-5 offset-md-1">
+                <Panel>
+                  <h1>FRC Team 5546 A.R.T.</h1>
+                  <p>
+                    Welcome to FRC TeamOrg. If you are not on the team, you can fill out the
+                    interest form. If you are team leadership, please ensure you have an account,
+                    then login. If there are any issues, please contact{' '}
+                    <a href="mailto:bradley@argsrobotics.com">webmail@argsrobotics.com</a>.
+                  </p>
+                </Panel>
               </div>
-              <div className="col-xs-10 col-xs-offset-1 col-md-5 col-md-offset-0 d-flex justify-content-center align-items-center">
+              <div className="col col-md-5 d-flex justify-content-center align-items-center">
                 <div className="btn-group btn-group-lg" role="group" aria-label="User Actions">
                   <button
                     type="button"
@@ -189,9 +181,7 @@ webmail@argsrobotics.com
                     title="Interest Form"
                     onClick={this.toggleInterestForm}
                   >
-                    <em className="fab fa-wpforms">
-&nbsp;
-                    </em>
+                    <em className="fab fa-wpforms">&nbsp;</em>
                     Interest Form
                   </button>
                   <button
@@ -200,9 +190,7 @@ webmail@argsrobotics.com
                     title="Interest Form"
                     onClick={this.toggleLogin}
                   >
-                    <em className="fa fa-sign-in-alt">
-&nbsp;
-                    </em>
+                    <em className="fa fa-sign-in-alt">&nbsp;</em>
                     Login
                   </button>
                 </div>
@@ -211,82 +199,78 @@ webmail@argsrobotics.com
           </React.Fragment>
         )}
         {showLogin && (
-          <div className="row">
-            <hr />
-            <div className="col-xs-11 col-xs-offset-1 col-sm-10 col-sm-offset-2 col-md-8 col-md-offset-4">
+          <React.Fragment>
+            <div className="col-12 col-md-6 offset-md-3">
+              <br />
+            </div>
+            <div className="col-12 col-md-6 offset-md-3">
               <button type="button" className="btn btn-default" onClick={this.toggleLogin}>
-                <em className="fa fa-chevron-left">
-&nbsp;
-                </em>
+                <em className="fa fa-chevron-left">&nbsp;</em>
                 Back
               </button>
             </div>
-            <div className="col-xs-10 col-xs-offset-1 col-sm-8 col-sm-offset-2 col-md-4 col-md-offset-4">
+            <div className="col-12 col-md-6 offset-md-3">
               <hr />
-              <div className="login-panel panel panel-default">
-                <div className="panel-heading">
-Log in
-                </div>
-                <div className="panel-body">
-                  <form onSubmit={e => login(e, this.state)}>
-                    <fieldset>
-                      <div className="form-group">
-                        <input
-                          className="form-control"
-                          placeholder="Username"
-                          name="username"
-                          type="text"
-                          id="username"
-                          value={username}
-                          onChange={this.handleChange}
-                        />
-                      </div>
-                      <div className="form-group">
-                        <input
-                          className="form-control"
-                          placeholder="Password"
-                          name="password"
-                          id="password"
-                          type="password"
-                          value={password}
-                          onChange={this.handleChange}
-                        />
-                      </div>
-                      <div className="checkbox">
-                        <label htmlFor="rememberMe">
-                          <input
-                            name="rememberMe"
-                            id="rememberMe"
-                            type="checkbox"
-                            value="Remember Me"
-                            checked={rememberMe}
-                            onChange={this.handleChange}
-                          />
-                          Remember Me
-                        </label>
-                      </div>
-                      <button type="submit" className="btn btn-primary">
-                        Login
-                      </button>
-                    </fieldset>
-                  </form>
-                </div>
-              </div>
+              <Panel title="Log in">
+                <form onSubmit={e => login(e, this.state)}>
+                  <fieldset>
+                    <div className="form-group">
+                      <input
+                        className="form-control"
+                        placeholder="Username"
+                        name="username"
+                        type="text"
+                        id="username"
+                        value={username}
+                        onChange={this.handleChange}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <input
+                        className="form-control"
+                        placeholder="Password"
+                        name="password"
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={this.handleChange}
+                      />
+                    </div>
+                    <div className="form-check">
+                      <input
+                        name="rememberMe"
+                        id="rememberMe"
+                        className="form-check-input"
+                        type="checkbox"
+                        value="Remember Me"
+                        checked={rememberMe}
+                        onChange={this.handleChange}
+                      />
+                      <label htmlFor="rememberMe" className="form-check=label">
+                        Remember Me
+                      </label>
+                    </div>
+                    <button type="submit" className="btn btn-primary">
+                      Login
+                    </button>
+                  </fieldset>
+                </form>
+              </Panel>
             </div>
-          </div>
+          </React.Fragment>
         )}
-        {showInterestForm && (
+        {showInterestForm && !success && (
           <div className="row">
-            <hr />
-            <div className="col-xs-11 col-xs-offset-1">
+            <div className="col-12">
+              <br />
+            </div>
+            <div className="col-10 offset-1">
               <button type="button" className="btn btn-default" onClick={this.toggleInterestForm}>
-                <em className="fa fa-chevron-left">
-&nbsp;
-                </em>
+                <em className="fa fa-chevron-left">&nbsp;</em>
                 Back
               </button>
             </div>
-            <div className="col-xs-10 col-xs-offset-1">
+            <div className="col-10 offset-1">
               <hr />
               <InterestForm
                 submitForm={this.submitForm}
@@ -297,6 +281,17 @@ Log in
                 removeParent={this.removeParent}
                 errors={errors}
               />
+            </div>
+          </div>
+        )}
+        {success && (
+          <div className="row">
+            <div className="col-10 offset-1">
+              <Panel>
+                <h4>
+                  Thanks for filling out the interest form. We will be in contact with you soon.
+                </h4>
+              </Panel>
             </div>
           </div>
         )}

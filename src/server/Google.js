@@ -4,11 +4,6 @@ const { google } = require('googleapis');
 const fs = require('fs');
 const readline = require('readline');
 const { Base64 } = require('js-base64');
-if (process.env.USER === 'webmaster') {
-  require('dotenv').config('/var/www/.env');
-} else {
-  require('dotenv').config();
-}
 
 const SCOPES = [
   'https://www.googleapis.com/auth/admin.directory.group',

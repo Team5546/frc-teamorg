@@ -9,6 +9,14 @@ const { teamMembersRouter } = require('./TeamMembers.js');
 const { meetingsRouter } = require('./Meetings.js');
 const { googleRouter } = require('./Google.js');
 
+if (process.env.USER === 'webmaster') {
+  require('dotenv').config({ path: '/var/www/.env' });
+} else {
+  require('dotenv').config();
+}
+
+const PORT = process.env.ENV === 'development' ? 8080 : 3001;
+
 // mongoose.set('debug', true);
 
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -27,4 +35,4 @@ app.use('/api/v1/teamMembers', teamMembersRouter);
 app.use('/api/v1/meetings', meetingsRouter);
 app.use('/api/v1/google', googleRouter);
 
-app.listen(8080, () => console.log('Listening on port 8080!'));
+app.listen(PORT, () => console.log(`Listening on port ${PORT}!`));

@@ -7,7 +7,7 @@
     "start": "concurrently \"node src/server/index.js\" \"npm run db\"",
     "build": "webpack --mode production",
     "client": "webpack-serve --config ./webpack.config.js --hotClient",
-    "db": "mongod --dbpath db",
+    "db": "mongod --dbpath ~/db",
     "server": "nodemon src/server/index.js",
     "dev": "concurrently \"npm run server\" \"npm run client\" \"npm run db\""
   },

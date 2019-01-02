@@ -43,10 +43,10 @@ export default class App extends Component {
       navContext: {
         page: 'landing',
         setPage: this.setPage,
-        showSideMenu: true,
+        showSideMenu: false,
         props: {}
       },
-      showSideMenu: true
+      showSideMenu: false
     };
 
     const { sessionId } = this.state;
@@ -97,7 +97,7 @@ export default class App extends Component {
   setUser(userId) {
     axios.get(`/api/v1/users/${userId}`).then(response => {
       const { userContext } = this.state;
-      this.setState({ userContext: { ...userContext, user: response.data } });
+      this.setState({ userContext: { ...userContext, user: response.data }, showSideMenu: true });
     });
   }
 
@@ -350,7 +350,9 @@ export default class App extends Component {
                   </div>
                 </React.Fragment>
               ) : (
-                <Landing login={this.login} />
+                <div className="col p-0 page-scroll">
+                  <Landing login={this.login} />
+                </div>
               )}
             </div>
           </div>
