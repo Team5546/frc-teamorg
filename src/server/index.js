@@ -1,22 +1,13 @@
 /* eslint-disable no-param-reassign */
 const express = require('express');
 const db = require('./db');
-console.log(`__dirname: ${__dirname}`);
-console.log(`__dirname indexOf: ${__dirname.indexOf('/src/server')}`);
-const userRouter =
-  __dirname.indexOf('/src/server') !== -1 ? require('./Users') : require('/src/server/Users');
-const { accountsRouter, checkAdminExists } =
-  __dirname.indexOf('/src/server') !== -1 ? require('./Accounts') : require('/src/server/Accounts');
-const { sessionsRouter } =
-  __dirname.indexOf('/src/server') !== -1 ? require('./Sessions') : require('/src/server/Sessions');
-const { teamMembersRouter } =
-  __dirname.indexOf('/src/server') !== -1
-    ? require('./TeamMembers')
-    : require('/src/server/TeamMembers');
-const { meetingsRouter } =
-  __dirname.indexOf('/src/server') !== -1 ? require('./Meetings') : require('/src/server/Meetings');
-const { googleRouter } =
-  __dirname.indexOf('/src/server') !== -1 ? require('./Google') : require('/src/server/Google');
+// console.log(`__dirname: ${__dirname}`);
+const userRouter = require('./Users');
+const { accountsRouter, checkAdminExists } = require('./Accounts.js');
+const { sessionsRouter } = require('./Sessions.js');
+const { teamMembersRouter } = require('./TeamMembers.js');
+const { meetingsRouter } = require('./Meetings.js');
+const { googleRouter } = require('./Google.js');
 
 // mongoose.set('debug', true);
 
