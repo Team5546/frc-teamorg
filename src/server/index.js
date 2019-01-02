@@ -1,8 +1,8 @@
 /* eslint-disable no-param-reassign */
 const express = require('express');
 const db = require('./db');
-// console.log(`__dirname: ${__dirname}`);
-// console.log(`__dirname indexOf: ${__dirname.indexOf('/src/server')}`);
+console.log(`__dirname: ${__dirname}`);
+console.log(`__dirname indexOf: ${__dirname.indexOf('/src/server')}`);
 const userRouter =
   __dirname.indexOf('/src/server') !== -1 ? require('./Users') : require('/src/server/Users');
 const { accountsRouter, checkAdminExists } =
