@@ -1,7 +1,8 @@
 /* eslint-disable no-param-reassign */
 const express = require('express');
 const db = require('./db');
-const userRouter = require('./Users');
+const path = require('path');
+const userRouter = require(path.resolve('./Users'));
 const { accountsRouter, checkAdminExists } = require('./Accounts.js');
 const { sessionsRouter } = require('./Sessions.js');
 const { teamMembersRouter } = require('./TeamMembers.js');
