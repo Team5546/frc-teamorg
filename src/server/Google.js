@@ -4,7 +4,11 @@ const { google } = require('googleapis');
 const fs = require('fs');
 const readline = require('readline');
 const { Base64 } = require('js-base64');
-require('dotenv').config();
+if (process.env.USER === 'webmaster') {
+  require('dotenv').config('/var/www/.env');
+} else {
+  require('dotenv').config();
+}
 
 const SCOPES = [
   'https://www.googleapis.com/auth/admin.directory.group',
@@ -13,12 +17,15 @@ const SCOPES = [
 const TOKEN_PATH = 'token.json';
 const REFRESH_TOKEN_PATH = 'refresh-token.json';
 const { API_KEY, CLIENT_SECRET, ENV } = process.env;
-const REDIRECT_URI = ENV === 'development' ? 'http://localhost:3000' : '';
+const REDIRECT_URI =
+  ENV === 'development' ? 'http://localhost:3000' : 'http://argsrobotics.com:8080';
+
+console.log('process.env', process.env);
 
 let oauth2Client;
 
 function storeToken(token) {
-  fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
+  fs.writeFile(TOKEN_PATH, JSON.stringify(token), err => {
     if (err) return console.warn(`Token not stored to ${TOKEN_PATH}`, err);
     return console.log(`Token stored to ${TOKEN_PATH}`);
   });
@@ -35,7 +42,7 @@ function getNewToken(oauth) {
     input: process.stdin,
     output: process.stdout
   });
-  rl.question('Enter the code from that page here: ', (code) => {
+  rl.question('Enter the code from that page here: ', code => {
     rl.close();
     oauth.getToken(code, (err, token) => {
       if (err) return console.error('Error retrieving access token', err);
@@ -48,13 +55,13 @@ function getNewToken(oauth) {
 function authorize() {
   oauth2Client = new google.auth.OAuth2(API_KEY, CLIENT_SECRET, REDIRECT_URI);
 
-  oauth2Client.on('tokens', (tokens) => {
+  oauth2Client.on('tokens', tokens => {
     if (tokens.refresh_token) {
       // store the refresh_token in my database!
       fs.writeFile(
         REFRESH_TOKEN_PATH,
         JSON.stringify({ refresh_token: tokens.refresh_token }),
-        (err) => {
+        err => {
           if (err) return console.warn(`Refresh Token not stored to ${REFRESH_TOKEN_PATH}`, err);
           return console.log(`Refresh Token stored to ${REFRESH_TOKEN_PATH}`);
         }
@@ -214,13 +221,13 @@ googleRouter.put('/groups/:groupKey/updateMembers', (req, res) => {
         if (err) return console.error('The API returned an error:', err.message);
         const { members } = listRes.data;
         ['bdharker@args.us', 'mansari@args.us', 'acrowder@args.us', 'asalas@args.us'].forEach(
-          (email) => {
+          email => {
             if (members.filter(val => val.email === email).length === 0) return toAdd.push(email);
             return email; // console.log(`Admin email ${email} already added`);
           }
         );
 
-        toRemove.forEach((memberKey) => {
+        toRemove.forEach(memberKey => {
           service.members.delete(
             {
               groupKey,
@@ -234,8 +241,8 @@ googleRouter.put('/groups/:groupKey/updateMembers', (req, res) => {
                   memberKey
                 });
                 if (
-                  removeErrorCount + removeSuccessCount === toRemove.length
-                  && addErrorCount + addSuccessCount === toAdd.length
+                  removeErrorCount + removeSuccessCount === toRemove.length &&
+                  addErrorCount + addSuccessCount === toAdd.length
                 ) {
                   return res.json({
                     removeErrorCount,
@@ -250,8 +257,8 @@ googleRouter.put('/groups/:groupKey/updateMembers', (req, res) => {
               }
               removeSuccessCount += 1;
               if (
-                removeErrorCount + removeSuccessCount === toRemove.length
-                && addErrorCount + addSuccessCount === toAdd.length
+                removeErrorCount + removeSuccessCount === toRemove.length &&
+                addErrorCount + addSuccessCount === toAdd.length
               ) {
                 return res.json({
                   removeErrorCount,
@@ -267,7 +274,7 @@ googleRouter.put('/groups/:groupKey/updateMembers', (req, res) => {
           );
         });
 
-        toAdd.forEach((email) => {
+        toAdd.forEach(email => {
           service.members.insert(
             {
               groupKey,
@@ -283,8 +290,8 @@ googleRouter.put('/groups/:groupKey/updateMembers', (req, res) => {
                   email
                 });
                 if (
-                  removeErrorCount + removeSuccessCount === toRemove.length
-                  && addErrorCount + addSuccessCount === toAdd.length
+                  removeErrorCount + removeSuccessCount === toRemove.length &&
+                  addErrorCount + addSuccessCount === toAdd.length
                 ) {
                   return res.json({
                     removeErrorCount,
@@ -299,8 +306,8 @@ googleRouter.put('/groups/:groupKey/updateMembers', (req, res) => {
               }
               addSuccessCount += 1;
               if (
-                removeErrorCount + removeSuccessCount === toRemove.length
-                && addErrorCount + addSuccessCount === toAdd.length
+                removeErrorCount + removeSuccessCount === toRemove.length &&
+                addErrorCount + addSuccessCount === toAdd.length
               ) {
                 return res.json({
                   removeErrorCount,
@@ -393,7 +400,7 @@ googleRouter.put('/sendMissingDocsEmail', (req, res) => {
         sentTo: []
       };
 
-      mailingList.forEach((member) => {
+      mailingList.forEach(member => {
         let retryNumber = 0;
         sendMissingDocsEmail(service, member)
           .then(() => {
@@ -405,7 +412,7 @@ googleRouter.put('/sendMissingDocsEmail', (req, res) => {
             );
             return stats.sentTo.push(member.email);
           })
-          .catch((err) => {
+          .catch(err => {
             // console.log(err);
             console.error(`There was a Gmail API Error: ${err.code} ${err.message}`);
             if (retryNumber && retryNumber === 4) {
@@ -427,8 +434,8 @@ googleRouter.put('/sendMissingDocsEmail', (req, res) => {
                 message:
                   stats.sendingErrors.length > 0
                     ? `There were a few errors: ${stats.sendingErrors
-                      .map(val => val.email)
-                      .join(', ')}`
+                        .map(val => val.email)
+                        .join(', ')}`
                     : 'All emails sent successfully',
                 errorList: stats.sendingErrors,
                 sentTo: stats.sentTo,
