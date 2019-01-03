@@ -3,8 +3,13 @@ body {
   font-size: 14px;
   color: #444444;
   font-family: 'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  height: 100%;
-  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  body {
+    height: 100%;
+    overflow: hidden;
+  }
 }
 
 p {
@@ -42,10 +47,16 @@ h4 {
 }
 
 .page-scroll {
-  max-height: calc(100% - 60px);
-  overflow-y: scroll;
-  overflow-x: hidden;
-  position: absolute;
+  margin-top: 60px;
+}
+
+@media (min-width: 768px) {
+  .page-scroll {
+    max-height: calc(100% - 60px);
+    overflow-y: scroll;
+    overflow-x: hidden;
+    position: absolute;
+  }
 }
 
 .sidebar .list-group {
@@ -1234,12 +1245,21 @@ a.label:focus {
   text-decoration: none;
 }
 
-.sidebar {
+/* .sidebar {
   display: block;
   padding: 0;
   display: none;
   box-shadow: none;
   background: #fff;
+} */
+
+.sidebar {
+  display: block;
+  width: 100%;
+  margin: 0;
+  margin-top: 60px;
+  margin-bottom: -60px;
+  padding: 0;
 }
 
 .sidebar ul {
@@ -1265,6 +1285,8 @@ a.label:focus {
     padding: 0;
     overflow-x: hidden;
     overflow-y: auto;
+    max-width: 16.666667%;
+    flex: 0 0 16.666667%;
   }
 
   .navbar-header {

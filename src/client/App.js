@@ -78,9 +78,8 @@ export default class App extends Component {
     });
     const page = cookie.load('page');
     if (page) this.setPage(page);
-    window.addEventListener('resize', () => {
-      if (window.innerWidth < 768) this.setState({ showSideMenu: true });
-    });
+    console.log(`indderWidth: ${window.innerWidth}`);
+    if (window.innerWidth < 768) this.setState({ showSideMenu: false });
     // $('.list-group-item').on('click', () => {
     //   console.log($('.list-group-item').has('a[aria-expanded="true"]'));
     //   $('.list-group-item')
@@ -97,7 +96,10 @@ export default class App extends Component {
   setUser(userId) {
     axios.get(`/api/v1/users/${userId}`).then(response => {
       const { userContext } = this.state;
-      this.setState({ userContext: { ...userContext, user: response.data }, showSideMenu: true });
+      this.setState({
+        userContext: { ...userContext, user: response.data },
+        showSideMenu: window.innerWidth >= 768
+      });
     });
   }
 
@@ -110,7 +112,8 @@ export default class App extends Component {
         page,
         props,
         setPage: this.setPage
-      }
+      },
+      showSideMenu: window.innerWidth >= 768
     });
     // if (toggleSidemenu) this.toggleSideMenu();
   }
@@ -343,7 +346,9 @@ export default class App extends Component {
                   )}
                   <div
                     className={
-                      showSideMenu ? 'col col-md-10 offset-md-2 page-scroll' : 'col page-scroll'
+                      showSideMenu
+                        ? 'col-12 col-md-10 offset-md-2 order-2 page-scroll'
+                        : 'col page-scroll'
                     }
                   >
                     {visiblePage}

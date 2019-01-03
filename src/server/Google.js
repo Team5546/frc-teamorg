@@ -9,9 +9,10 @@ const SCOPES = [
   'https://www.googleapis.com/auth/admin.directory.group',
   'https://www.googleapis.com/auth/gmail.send'
 ];
-const TOKEN_PATH = '/var/www/teamorg-tokens/token.json';
-const REFRESH_TOKEN_PATH = '/var/www/teamorg-tokens/refresh-token.json';
 const { API_KEY, CLIENT_SECRET, ENV } = process.env;
+const TOKEN_PATH = ENV === 'development' ? 'token.json' : '/var/www/teamorg-tokens/token.json';
+const REFRESH_TOKEN_PATH =
+  ENV === 'development' ? 'refresh-token.json' : '/var/www/teamorg-tokens/refresh-token.json';
 const REDIRECT_URI =
   ENV === 'development' ? 'http://localhost:3000' : 'http://argsrobotics.com:8080';
 

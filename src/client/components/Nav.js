@@ -2,32 +2,15 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 // import './styles/Nav.scss';
 
-function getWindowWidth() {
-  return window.innerWidth;
-}
-
 export default class Nav extends Component {
-  constructor() {
-    super();
-
-    this.state = {
-      windowWidth: getWindowWidth()
-    };
-  }
-
-  componentDidMount() {
-    window.addEventListener('resize', () => this.setState({ windowWidth: getWindowWidth() }));
-  }
-
   render() {
-    const { windowWidth } = this.state;
-    const { loggedIn, toggleSideMenu, showSideMenu } = this.props;
+    const { toggleSideMenu, showSideMenu } = this.props;
     return (
       <nav
-        className="navbar navbar-expand-lg navbar-light navbar-custom navbar-fixed-top"
+        className="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top"
         role="navigation"
       >
-        <a role="button" className="navbar-brand">
+        <a role="button" className="navbar-brand mr-auto">
           <span style={{ color: 'white' }}>
             <img
               src="http://argsrobotics.com/wp-content/uploads/2018/07/art.png"
@@ -37,32 +20,23 @@ export default class Nav extends Component {
             <span style={{ top: 15, position: 'absolute' }}>&nbsp; 5546 TEAM ORG</span>
           </span>
         </a>
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-toggle="collapse"
-          data-target="#sidebar-collapse"
-          aria-controls="sidebar-collapse"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
+        <button className="navbar-toggler" type="button" onClick={toggleSideMenu}>
           <span className="navbar-toggler-icon" />
         </button>
 
-        {loggedIn.username && windowWidth >= 768 && (
-          <ul className="nav navbar-top-links navbar-left">
-            <li className="dropdown">
-              <a
-                className={`btn btn-${showSideMenu ? 'primary' : 'light'}`}
-                href="#"
-                onClick={toggleSideMenu}
-              >
-                <em className={`fa fa-toggle-${showSideMenu ? 'on' : 'off'}`} />
-                {`Sidemenu ${showSideMenu ? 'On' : 'Off'}`}
-              </a>
-            </li>
-          </ul>
-        )}
+        <ul className="nav navbar-top-links navbar-left d-none d-lg-block">
+          <li className="dropdown">
+            <button
+              type="button"
+              className={`btn btn-${showSideMenu ? 'primary' : 'light'}`}
+              href="#"
+              onClick={toggleSideMenu}
+            >
+              <em className={`fa fa-toggle-${showSideMenu ? 'on' : 'off'}`} />
+              {`Sidemenu ${showSideMenu ? 'On' : 'Off'}`}
+            </button>
+          </li>
+        </ul>
         {/* <ul className="nav navbar-top-links navbar-right">
               <li className="dropdown">
                 <a className="dropdown-toggle count-info" data-toggle="dropdown" href="#">
@@ -202,12 +176,7 @@ All Messages
   }
 }
 
-Nav.defaultProps = {
-  loggedIn: {}
-};
-
 Nav.propTypes = {
-  loggedIn: PropTypes.object,
   showSideMenu: PropTypes.bool.isRequired,
   toggleSideMenu: PropTypes.func.isRequired
 };
