@@ -1,4 +1,11 @@
 /* eslint-disable no-param-reassign */
+if (process.env.USER === 'webmaster') {
+  console.log(require('dotenv').config({ path: '/var/www/.env' }));
+} else {
+  require('dotenv').config();
+}
+// console.log('process.env', process.env);
+
 const express = require('express');
 const db = require('./db');
 // console.log(`__dirname: ${__dirname}`);
@@ -8,12 +15,6 @@ const { sessionsRouter } = require('./Sessions.js');
 const { teamMembersRouter } = require('./TeamMembers.js');
 const { meetingsRouter } = require('./Meetings.js');
 const { googleRouter } = require('./Google.js');
-
-if (process.env.USER === 'webmaster') {
-  require('dotenv').config({ path: '/var/www/.env' });
-} else {
-  require('dotenv').config();
-}
 
 const PORT = process.env.ENV === 'development' ? 8080 : 3001;
 

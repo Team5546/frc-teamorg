@@ -43,7 +43,8 @@ h4 {
 
 .page-scroll {
   max-height: calc(100% - 60px);
-  overflow: scroll;
+  overflow-y: scroll;
+  overflow-x: hidden;
   position: absolute;
 }
 

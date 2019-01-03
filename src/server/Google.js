@@ -15,8 +15,6 @@ const { API_KEY, CLIENT_SECRET, ENV } = process.env;
 const REDIRECT_URI =
   ENV === 'development' ? 'http://localhost:3000' : 'http://argsrobotics.com:8080';
 
-console.log('process.env', process.env);
-
 let oauth2Client;
 
 function storeToken(token) {
