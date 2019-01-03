@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const proxy = require('http-proxy-middleware');
 const convert = require('koa-connect');
@@ -37,9 +38,9 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin([outputDirectory]),
     new HtmlWebpackPlugin({
-      template: './public/index.html',
-      favicon: './public/favicon.ico'
-    })
+      template: './public/index.html'
+    }),
+    new CopyWebpackPlugin([{ from: './static' }])
   ],
   serve: {
     open: {
