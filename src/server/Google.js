@@ -40,16 +40,31 @@ function getNewToken(oauth) {
     rl.close();
     oauth.getToken(code, (err, token) => {
       if (err) return console.error('Error retrieving access token', err);
-      oauth.credentials = token;
+      oauth.setCredentials(token);
       storeToken(token);
       return console.log('logged in');
     });
   });
 }
 function authorize() {
+  console.log('\x1b[36m[OAuth2] %s\x1b[0m', 'Authorizing Ouath2...');
   oauth2Client = new google.auth.OAuth2(API_KEY, CLIENT_SECRET, REDIRECT_URI);
 
+  console.log('\x1b[36m[OAuth2] %s\x1b[0m', 'Checking Tokens...');
+
+  if (!fs.existsSync(TOKEN_PATH)) {
+    console.log('\x1b[31m[OAuth2] %s\x1b[0m', 'Token doesnt exist. Getting new tokens.');
+    getNewToken(oauth2Client);
+  } else {
+    console.log('\x1b[36m[OAuth2] %s\x1b[0m', 'Reading Access Token...');
+
+    const token = fs.readFileSync(TOKEN_PATH);
+    oauth2Client.setCredentials(JSON.parse(token));
+    // console.log(oauth2Client);
+  }
+
   oauth2Client.on('tokens', tokens => {
+    console.log('\x1b[36m[OAuth2] %s\x1b[0m', 'Setting tokens...');
     if (tokens.refresh_token) {
       // store the refresh_token in my database!
       fs.writeFile(
@@ -64,12 +79,7 @@ function authorize() {
     oauth2Client.setCredentials(tokens);
   });
 
-  // Check if we have previously stored a token.
-  fs.readFile(TOKEN_PATH, (err, token) => {
-    if (err) return getNewToken(oauth2Client);
-    oauth2Client.setCredentials(JSON.parse(token));
-    return oauth2Client;
-  });
+  return oauth2Client;
 }
 
 authorize();
@@ -98,7 +108,7 @@ function generateEncodedEmail(toName, toEmail, headers, message) {
 const googleRouter = express.Router();
 
 googleRouter.get('/groups', (req, res) => {
-  // console.log(oauth2Client.credentials);
+  authorize();
   oauth2Client.getAccessToken().then(() => {
     const service = google.admin({ version: 'directory_v1', auth: oauth2Client });
     service.groups.list(
@@ -119,6 +129,7 @@ googleRouter.get('/groups', (req, res) => {
 });
 
 googleRouter.get('/groups/:id', (req, res) => {
+  authorize();
   oauth2Client.getAccessToken().then(() => {
     const { id } = req.params;
     // console.log(oauth2Client.credentials);
@@ -153,6 +164,7 @@ googleRouter.get('/groups/:id', (req, res) => {
 });
 
 googleRouter.put('/groups/:id', (req, res) => {
+  authorize();
   oauth2Client.getAccessToken().then(() => {
     const { id } = req.params;
     const { name, description, email } = req.body;
@@ -177,6 +189,7 @@ googleRouter.put('/groups/:id', (req, res) => {
 });
 
 googleRouter.get('/groups/:groupKey/hasMember/:memberKey', (req, res) => {
+  authorize();
   oauth2Client.getAccessToken().then(() => {
     const { groupKey, memberKey } = req.params;
     const service = google.admin({ version: 'directory_v1', auth: oauth2Client });
@@ -195,6 +208,7 @@ googleRouter.get('/groups/:groupKey/hasMember/:memberKey', (req, res) => {
 });
 
 googleRouter.put('/groups/:groupKey/updateMembers', (req, res) => {
+  authorize();
   oauth2Client.getAccessToken().then(() => {
     const { groupKey } = req.params;
     const { toAdd, toRemove } = req.body;
@@ -383,6 +397,7 @@ async function sendMissingDocsEmail(service, member) {
 }
 
 googleRouter.put('/sendMissingDocsEmail', (req, res) => {
+  authorize();
   oauth2Client.getAccessToken().then(
     () => {
       const mailingList = req.body;

@@ -26,6 +26,7 @@ const Subteam = ({ title, members, color, group, showGroup, toggleGroup, updateG
               ))}
             </tbody>
           </table>
+          {!group.id && <h5>Loading google group...</h5>}
           {group.id && (
             <React.Fragment>
               <dl>
