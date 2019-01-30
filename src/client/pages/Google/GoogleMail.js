@@ -16,25 +16,41 @@ export default class GoogleAdmin extends Component {
         members: [],
         errors: undefined,
         success: undefined
+      },
+      parents: {
+        parents: [],
+        errors: undefined,
+        success: undefined
       }
     };
 
-    this.getMissingDocsMembers();
+    this.getMembers();
 
     this.sendMissingDocsEmail = this.sendMissingDocsEmail.bind(this);
   }
 
-  getMissingDocsMembers() {
+  getMembers() {
     axios.get('/api/v1/teamMembers').then(
       response => {
+        const parents = [];
+        for (let member of response.data) {
+          for (const parent of member.parents) {
+            if (parents.filter(p => p.email === parent.email).length === 0) parents.push(parent);
+          }
+        }
+        // console.log(parents);
         const missingDocsMembers = response.data.filter(
           member =>
-            !member.studentContract ||
-            !member.parentContract ||
-            !member.medicalForm ||
-            !member.duesPaid
+            !member.leftTeam &&
+            (!member.studentContract ||
+              !member.parentContract ||
+              !member.medicalForm ||
+              !member.duesPaid)
         );
-        this.setState({ missingDocs: { members: missingDocsMembers } });
+        this.setState({
+          missingDocs: { members: missingDocsMembers },
+          parents: { parents }
+        });
       },
       err => {
         this.setState({
@@ -43,6 +59,8 @@ export default class GoogleAdmin extends Component {
       }
     );
   }
+
+  getParentEmails() {}
 
   sendMissingDocsEmail() {
     const { missingDocs } = this.state;
@@ -67,7 +85,7 @@ export default class GoogleAdmin extends Component {
   }
 
   render() {
-    const { missingDocs, errors } = this.state;
+    const { missingDocs, errors, parents } = this.state;
     return (
       <Page title="Google Mail">
         <AlertBox
@@ -141,6 +159,73 @@ export default class GoogleAdmin extends Component {
                     )}
                     {missingDocs.response &&
                     missingDocs.response.errorList.indexOf(member.email) !== -1 ? (
+                      <span className="text-danger">
+                        <em className="fa fa-times-circle">&nbsp;</em>
+                        Error
+                      </span>
+                    ) : (
+                      ''
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Panel>
+        <Panel
+          title="Parents Mailing List"
+          type={
+            ((!parents.showAlert || !parents.response) && 'default') ||
+            (parents.showAlert && parents.response && parents.response.errorList.length > 0
+              ? 'danger'
+              : 'success')
+          }
+        >
+          <AlertBox
+            condition={parents.showAlert}
+            message={parents.response && parents.response.message}
+            close={() => this.setState({ parents: { ...parents, showAlert: undefined } })}
+            type="primary"
+          />
+          <table
+            className="table"
+            style={{
+              display: 'block',
+              maxHeight: 300,
+              overflow: 'scroll',
+              boxShadow: 'inset 0px -68px 79px -67px rgba(235, 235, 235, 0.8)'
+            }}
+          >
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {parents.parents.map(member => (
+                <tr key={member.email}>
+                  <td className="o-hidden">{`${member.firstName} ${member.lastName}`}</td>
+                  <td className="o-hidden">{member.email}</td>
+                  <td className="o-hidden">
+                    {!parents.response ? (
+                      <span>
+                        <em className="fa fa-question-circle">&nbsp;</em>
+                        Not Queued
+                      </span>
+                    ) : (
+                      ''
+                    )}
+                    {parents.response && parents.response.sentTo.indexOf(member.email) !== -1 ? (
+                      <span className="text-success">
+                        <em className="fa fa-check-circle">&nbsp;</em>
+                        Success
+                      </span>
+                    ) : (
+                      ''
+                    )}
+                    {parents.response && parents.response.errorList.indexOf(member.email) !== -1 ? (
                       <span className="text-danger">
                         <em className="fa fa-times-circle">&nbsp;</em>
                         Error
