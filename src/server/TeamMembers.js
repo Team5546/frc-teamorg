@@ -19,6 +19,14 @@ teamMembersRouter.get('/:id', (req, res) => {
   });
 });
 
+teamMembersRouter.get('/email/:email', (req, res) => {
+  const { email } = req.params;
+  TeamMember.findOne({ email }, (err, doc) => {
+    if (err) res.status(500).send();
+    else res.json(doc);
+  });
+});
+
 teamMembersRouter.post('/', (req, res) => {
   const {
     firstName,

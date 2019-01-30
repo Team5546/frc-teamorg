@@ -47,16 +47,36 @@ function getNewToken(oauth) {
   });
 }
 function authorize() {
-  console.log('\x1b[36m[OAuth2] %s\x1b[0m', 'Authorizing Ouath2...');
+  const dateOptions = {
+    year: 'numeric',
+    month: 'narrow',
+    day: '2-digit',
+    minute: '2-digit',
+    hour: '2-digit',
+    second: '2-digit'
+  };
+  console.log(
+    `\x1b[36m[${new Date().toLocaleTimeString('en-US', dateOptions)} OAuth2] %s\x1b[0m`,
+    'Authorizing Ouath2...'
+  );
   oauth2Client = new google.auth.OAuth2(API_KEY, CLIENT_SECRET, REDIRECT_URI);
 
-  console.log('\x1b[36m[OAuth2] %s\x1b[0m', 'Checking Tokens...');
+  console.log(
+    `\x1b[36m[${new Date().toLocaleTimeString('en-US', dateOptions)} OAuth2] %s\x1b[0m`,
+    'Checking Tokens...'
+  );
 
   if (!fs.existsSync(TOKEN_PATH)) {
-    console.log('\x1b[31m[OAuth2] %s\x1b[0m', 'Token doesnt exist. Getting new tokens.');
+    console.log(
+      `\x1b[36m[${new Date().toLocaleTimeString('en-US', dateOptions)} OAuth2] %s\x1b[0m`,
+      'Token doesnt exist. Getting new tokens.'
+    );
     getNewToken(oauth2Client);
   } else {
-    console.log('\x1b[36m[OAuth2] %s\x1b[0m', 'Reading Access Token...');
+    console.log(
+      `\x1b[36m[${new Date().toLocaleTimeString('en-US', dateOptions)} OAuth2] %s\x1b[0m`,
+      'Reading Access Token...'
+    );
 
     const token = fs.readFileSync(TOKEN_PATH);
     oauth2Client.setCredentials(JSON.parse(token));
@@ -64,7 +84,10 @@ function authorize() {
   }
 
   oauth2Client.on('tokens', tokens => {
-    console.log('\x1b[36m[OAuth2] %s\x1b[0m', 'Setting tokens...');
+    console.log(
+      `\x1b[36m[${new Date().toLocaleTimeString('en-US', dateOptions)} OAuth2] %s\x1b[0m`,
+      'Setting tokens...'
+    );
     if (tokens.refresh_token) {
       // store the refresh_token in my database!
       fs.writeFile(

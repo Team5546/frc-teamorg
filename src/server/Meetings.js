@@ -18,11 +18,11 @@ meetingsRouter.post('/', (req, res) => {
   const roster = [];
   TeamMember.find((err, teamMembers) => {
     for (const member of teamMembers) {
-      console.log(`------------\n${member.firstName}\n------------`);
+      // console.log(`------------\n${member.firstName}\n------------`);
       for (const subTeam of subTeams) {
-        console.log(`${subTeam}: ${member.subTeams.indexOf(subTeam)}`);
-        if (roster.indexOf(member._id) === -1 && member.subTeams.indexOf(subTeam) !== -1) {
-          roster.push(member._id);
+        // console.log(`${subTeam}: ${member.subTeams.indexOf(subTeam)}`);
+        if (roster.indexOf(member.email) === -1 && member.subTeams.indexOf(subTeam) !== -1) {
+          roster.push(member.email);
         }
       }
     }
@@ -61,15 +61,13 @@ meetingsRouter.put('/:id', (req, res) => {
       // console.log(`------------\n${member.firstName}\n------------`);
       for (const subTeam of subTeams) {
         // console.log(`${subTeam}: ${member.subTeams.indexOf(subTeam)}`);
-        if (roster.indexOf(member._id) === -1 && member.subTeams.indexOf(subTeam) !== -1) {
-          roster.push(member._id);
+        if (roster.indexOf(member.email) === -1 && member.subTeams.indexOf(subTeam) !== -1) {
+          roster.push(member.email);
         }
       }
     }
     // console.log(attendance.length);
-    const absent = attendance
-      ? roster.filter(i => attendance.map(a => a.toString()).indexOf(i.toString()) === -1)
-      : roster;
+    const absent = attendance ? roster.filter(i => attendance.indexOf(i) === -1) : roster;
     Meeting.findByIdAndUpdate(
       id,
       {
@@ -89,11 +87,11 @@ meetingsRouter.put('/:id', (req, res) => {
         // console.log('-----');
         let totalEdited = 0;
         for (let memberIndex = 0; memberIndex < roster.length; memberIndex += 1) {
-          const memberId = roster[memberIndex];
+          const email = roster[memberIndex];
           const memberCount = roster.length;
-          TeamMember.findById(memberId, (e, doc) => {
-            const { _id, meetings } = doc;
-            const attended = attendance.includes(memberId.toString());
+          TeamMember.findOne({ email }, (e, doc) => {
+            const { email, meetings } = doc;
+            const attended = attendance.includes(email);
             const entireTeam = subTeams.length === 6;
 
             let totalSubTeamMeetings = 0;
@@ -102,7 +100,7 @@ meetingsRouter.put('/:id', (req, res) => {
             let totalTeamMeetingsAttended = 0;
 
             // console.log('\n');
-            // console.log(`-----${memberId}-----`);
+            // console.log(`-----${email}-----`);
             // console.log(`Attended: ${attended}`);
 
             if (!entireTeam) {
@@ -118,6 +116,7 @@ meetingsRouter.put('/:id', (req, res) => {
               totalTeamMeetings += 1;
             }
 
+            // console.log(meetings);
             for (const meeting of meetings) {
               // console.log('----------');
               // console.log(`upDoc: ${upDoc._id.toString()}`);
@@ -162,7 +161,7 @@ meetingsRouter.put('/:id', (req, res) => {
               totalEdited += 1;
               console.log(`Meeting Exist\tTotal: ${totalEdited}`);
               TeamMember.updateOne(
-                { _id, 'meetings.meeting._id': upDoc._id },
+                { email, 'meetings.meeting._id': upDoc._id },
                 {
                   $set: {
                     subTeamMeetingsAttended,
@@ -175,7 +174,7 @@ meetingsRouter.put('/:id', (req, res) => {
                   }
                 },
                 (error, raw) => {
-                  console.log(`Edited in array: ${_id}\t${raw.toString()}`);
+                  console.log(`Edited in array: ${upDoc._id}\t${raw.toString()}`);
                   if (error) console.error(error);
                   if (memberIndex === memberCount - 1) {
                     if (updateErr) {
@@ -192,8 +191,8 @@ meetingsRouter.put('/:id', (req, res) => {
             } else {
               totalEdited += 1;
               console.log(`Meeting Not Exist\tTotal: ${totalEdited}`);
-              TeamMember.findByIdAndUpdate(
-                _id,
+              TeamMember.findOneAndUpdate(
+                { email },
                 {
                   $addToSet: {
                     meetings: {
@@ -229,10 +228,71 @@ meetingsRouter.put('/:id', (req, res) => {
 
 meetingsRouter.delete('/:id', (req, res) => {
   const { id } = req.params;
-  Meeting.deleteOne({ _id: id }, err => {
-    console.log('saved');
-    if (err) res.status(500).json({ errors: err });
-    else res.status(200).send();
+  Meeting.findByIdAndDelete(id, (updateErr, upDoc) => {
+    console.log(upDoc);
+    let totalEdited = 0;
+    for (let memberIndex = 0; memberIndex < upDoc.roster.length; memberIndex += 1) {
+      const email = upDoc.roster[memberIndex];
+      const memberCount = upDoc.roster.length;
+      TeamMember.findOne({ email }, (e, doc) => {
+        const { email, meetings } = doc;
+
+        const updatedMeetings = meetings.filter(
+          m => m.meeting._id.toString() !== upDoc._id.toString()
+        );
+        // console.log(updatedMeetings);
+
+        let totalSubTeamMeetings = 0;
+        let totalSubTeamMeetingsAttended = 0;
+        let totalTeamMeetings = 0;
+        let totalTeamMeetingsAttended = 0;
+
+        for (const meeting of updatedMeetings) {
+          if (meeting.meeting._id.toString() !== upDoc._id.toString()) {
+            if (meeting.entireTeam) {
+              if (meeting.attended) totalTeamMeetingsAttended += 1;
+              totalTeamMeetings += 1;
+            } else {
+              if (meeting.attended) {
+                totalSubTeamMeetingsAttended += 1;
+                // console.log('----------DEBUG 2----------');
+              }
+              totalSubTeamMeetings += 1;
+            }
+          }
+        }
+
+        const subTeamMeetingsAttended =
+          totalSubTeamMeetings > 0
+            ? Math.floor((totalSubTeamMeetingsAttended / totalSubTeamMeetings) * 100)
+            : 0;
+        const teamMeetingsAttended =
+          totalTeamMeetings > 0
+            ? Math.floor((totalTeamMeetingsAttended / totalTeamMeetings) * 100)
+            : 0;
+
+        totalEdited += 1;
+        console.log(`Total Edited: ${totalEdited}`);
+        TeamMember.findOneAndUpdate(
+          { email },
+          {
+            $set: { subTeamMeetingsAttended, teamMeetingsAttended, meetings: updatedMeetings }
+          },
+          error => {
+            console.log('Updated meetings array');
+            if (error) console.error(error);
+            if (memberIndex === memberCount - 1) {
+              if (updateErr) {
+                console.log(updateErr);
+                res.status(500).json({ errors: { message: 'An unknown error has occurred.' } });
+              } else {
+                res.json({ ...upDoc });
+              }
+            }
+          }
+        );
+      });
+    }
   });
 });
 

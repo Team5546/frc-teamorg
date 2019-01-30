@@ -24,12 +24,12 @@ export default class Attendance extends Component {
 
   getMembers() {
     const { meeting, members } = this.state;
-    console.log(meeting.roster);
-    meeting.roster.forEach(memberId => {
-      axios.get(`api/v1/teamMembers/${memberId}`).then(
+    // console.log(meeting.roster);
+    meeting.roster.forEach(email => {
+      axios.get(`api/v1/teamMembers/email/${email}`).then(
         response => {
           members.push(response.data);
-          if (meeting.attendance.length === 0) meeting.absent.push(response.data._id);
+          if (meeting.attendance.length === 0) meeting.absent.push(response.data.email);
           this.setState({ members, meeting });
           // console.log(members);
         },
@@ -38,56 +38,58 @@ export default class Attendance extends Component {
     });
   }
 
-  setHere(memberId) {
-    const { meeting, members } = this.state;
-    if (meeting.attendance.indexOf(memberId) !== -1) return;
-    meeting.absent.splice(meeting.absent.indexOf(memberId), 1);
-    meeting.attendance.push(memberId);
-    this.setState({ meeting });
-    console.log('-----------');
-    console.log(
-      `Here: ${meeting.attendance.map(
-        i => members.filter(member => member._id === i)[0].firstName
-      )}`
-    );
-    console.log(
-      `Absent: ${meeting.absent.map(i => members.filter(member => member._id === i)[0].firstName)}`
-    );
-  }
+  // setHere(memberId) {
+  //   const { meeting, members } = this.state;
+  //   if (meeting.attendance.indexOf(memberId) !== -1) return;
+  //   meeting.absent.splice(meeting.absent.indexOf(memberId), 1);
+  //   meeting.attendance.push(memberId);
+  //   this.setState({ meeting });
+  //   console.log('-----------');
+  //   console.log(
+  //     `Here: ${meeting.attendance.map(
+  //       i => members.filter(member => member.email === i)[0].firstName
+  //     )}`
+  //   );
+  //   console.log(
+  //     `Absent: ${meeting.absent.map(
+  //       i => members.filter(member => member.email === i)[0].firstName
+  //     )}`
+  //   );
+  // }
 
-  setAbsent(memberId) {
-    const { meeting, members } = this.state;
-    const meetingCopy = meeting;
-    if (meetingCopy.absent.indexOf(memberId) !== -1) return;
-    meetingCopy.attendance.splice(meeting.attendance.indexOf(memberId), 1);
-    meetingCopy.absent.push(memberId);
-    this.setState({ meeting: meetingCopy });
-    console.log('-----------');
-    console.log(
-      `Here: ${meetingCopy.attendance.map(
-        i => members.filter(member => member._id === i)[0].firstName
-      )}`
-    );
-    console.log(
-      `Absent: ${meetingCopy.absent.map(
-        i => members.filter(member => member._id === i)[0].firstName
-      )}`
-    );
-  }
+  // setAbsent(memberId) {
+  //   const { meeting, members } = this.state;
+  //   const meetingCopy = meeting;
+  //   if (meetingCopy.absent.indexOf(memberId) !== -1) return;
+  //   meetingCopy.attendance.splice(meeting.attendance.indexOf(memberId), 1);
+  //   meetingCopy.absent.push(memberId);
+  //   this.setState({ meeting: meetingCopy });
+  //   console.log('-----------');
+  //   console.log(
+  //     `Here: ${meetingCopy.attendance.map(
+  //       i => members.filter(member => member.email === i)[0].firstName
+  //     )}`
+  //   );
+  //   console.log(
+  //     `Absent: ${meetingCopy.absent.map(
+  //       i => members.filter(member => member.email === i)[0].firstName
+  //     )}`
+  //   );
+  // }
 
-  getHere(memberId) {
+  getHere(memberEmail) {
     const { meeting } = this.state;
-    if (meeting.attendance.indexOf(memberId) !== -1) return true;
+    if (meeting.attendance.indexOf(memberEmail) !== -1) return true;
     return false;
   }
 
-  getAbsent(memberId) {
+  getAbsent(memberEmail) {
     const { meeting } = this.state;
-    if (meeting.absent.indexOf(memberId) !== -1) return true;
+    if (meeting.absent.indexOf(memberEmail) !== -1) return true;
     return false;
   }
 
-  toggleHere(memberId) {
+  toggleHere(memberEmail) {
     const { meeting, members } = this.state;
     // console.log('-----------');
     // console.log(
@@ -98,13 +100,13 @@ export default class Attendance extends Component {
     // console.log(
     //   `Absent: ${meeting.absent.map(i => members.filter(member => member._id === i)[0].firstName)}`
     // );
-    if (this.getHere(memberId)) {
-      meeting.attendance.splice(meeting.attendance.indexOf(memberId), 1);
-      meeting.absent.push(memberId);
+    if (this.getHere(memberEmail)) {
+      meeting.attendance.splice(meeting.attendance.indexOf(memberEmail), 1);
+      meeting.absent.push(memberEmail);
       this.setState({ meeting });
-    } else if (this.getAbsent(memberId)) {
-      meeting.absent.splice(meeting.absent.indexOf(memberId), 1);
-      meeting.attendance.push(memberId);
+    } else if (this.getAbsent(memberEmail)) {
+      meeting.absent.splice(meeting.absent.indexOf(memberEmail), 1);
+      meeting.attendance.push(memberEmail);
       this.setState({ meeting });
     }
     // console.log(
@@ -153,18 +155,18 @@ export default class Attendance extends Component {
                               <button
                                 type="button"
                                 className={`btn btn-sm btn-${
-                                  this.getHere(member._id) ? 'success' : 'danger'
+                                  this.getHere(member.email) ? 'success' : 'danger'
                                 }`}
-                                onClick={() => this.toggleHere(member._id)}
+                                onClick={() => this.toggleHere(member.email)}
                               >
                                 <em
                                   className={`fa fa-${
-                                    this.getHere(member._id) ? 'check' : 'times'
+                                    this.getHere(member.email) ? 'check' : 'times'
                                   }`}
                                 >
                                   &nbsp;
                                 </em>
-                                {this.getHere(member._id) ? 'Here' : 'Absent'}
+                                {this.getHere(member.email) ? 'Here' : 'Absent'}
                               </button>
                             </dl>
                           </dl>

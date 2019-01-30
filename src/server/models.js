@@ -10,9 +10,9 @@ const meetingSchema = new mongoose.Schema({
     type: Array,
     required: true
   },
-  attendance: [mongoose.Schema.Types.ObjectId],
-  absent: [mongoose.Schema.Types.ObjectId],
-  roster: [mongoose.Schema.Types.ObjectId]
+  attendance: [String],
+  absent: [String],
+  roster: [String]
 });
 
 const Meeting = db.model('Meeting', meetingSchema);

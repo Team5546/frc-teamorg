@@ -44,7 +44,7 @@ export default class Meetings extends Component {
     this.setState({ selectedMeeting });
     $('#calendar').off('click');
     $('.day.active').toggleClass('active');
-    console.log(`^${moment(selectedMeeting.date).date()}$`);
+    // console.log(`^${moment(selectedMeeting.date).date()}$`);
     $(
       `.day:not(.old):not(.new):contains(${moment(selectedMeeting.date).date()}):first`
     ).toggleClass('active');
@@ -63,7 +63,7 @@ export default class Meetings extends Component {
     this.setState({
       selectedMeeting: { ...selectedMeeting, subTeams }
     });
-    console.log(subTeams);
+    // console.log(subTeams);
   }
 
   delete(meetingIndex) {
@@ -167,6 +167,7 @@ export default class Meetings extends Component {
                       <td>Date</td>
                       <td>Sub Teams</td>
                       <td>Past?</td>
+                      <td>Attendance?</td>
                       <td />
                     </tr>
                   </thead>
@@ -189,20 +190,30 @@ export default class Meetings extends Component {
                           )}
                         </td>
                         <td>
+                          {meeting.attendance.length > 0 ? (
+                            <em className="fa fa-check text-success" />
+                          ) : (
+                            <em className="fa fa-times text-danger" />
+                          )}
+                        </td>
+                        <td>
                           {!meeting.reallySure ? (
                             <div
                               className="btn-group btn-group-sm"
                               role="group"
                               aria-label="User Actions"
                             >
-                              <button
-                                type="button"
-                                className="btn btn-sm btn-warning"
-                                title="Edit"
-                                onClick={() => this.edit(index)}
-                              >
-                                <em className="fa fa-pencil-alt" />
-                              </button>
+                              {meeting.attendance.length === 0 &&
+                                !moment(new Date()).isAfter(meeting.date) && (
+                                  <button
+                                    type="button"
+                                    className="btn btn-sm btn-warning"
+                                    title="Edit"
+                                    onClick={() => this.edit(index)}
+                                  >
+                                    <em className="fa fa-pencil-alt" />
+                                  </button>
+                                )}
                               <NavContext.Consumer>
                                 {({ setPage }) => (
                                   <button
@@ -217,17 +228,14 @@ export default class Meetings extends Component {
                                   </button>
                                 )}
                               </NavContext.Consumer>
-                              {meeting.attendance.length === 0 &&
-                                !moment(new Date()).isAfter(meeting.date) && (
-                                  <button
-                                    type="button"
-                                    className="btn btn-danger"
-                                    title="Delete"
-                                    onClick={() => this.delete(index)}
-                                  >
-                                    <em className="fa fa-trash" />
-                                  </button>
-                                )}
+                              <button
+                                type="button"
+                                className="btn btn-danger"
+                                title="Delete"
+                                onClick={() => this.delete(index)}
+                              >
+                                <em className="fa fa-trash" />
+                              </button>
                             </div>
                           ) : (
                             <div
