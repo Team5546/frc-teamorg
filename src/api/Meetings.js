@@ -2,7 +2,7 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable no-restricted-syntax */
 const express = require('express');
-const { Meeting, TeamMember } = require('./models.js');
+const { Meeting, TeamMember } = require('./models');
 
 const meetingsRouter = express.Router();
 

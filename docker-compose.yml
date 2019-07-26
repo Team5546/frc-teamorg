@@ -1,0 +1,52 @@
+version: '3.7'
+
+services:
+  client:
+    build: './src/client'
+    image: teamorg-client
+    container_name: 'teamorg-client'
+    volumes:
+      - './src/client:/teamorg-client'
+      - '/teamorg-client/node_modules'
+    depends_on:
+      - api
+      - db
+    ports:
+      - '3000:3000'
+    networks:
+      default:
+        aliases:
+          - client
+  api:
+    build: './src/api'
+    image: teamorg-api
+    container_name: 'teamorg-api'
+    volumes:
+      - './src/api:/teamorg-api'
+      - '/teamorg-api/node_modules'
+    depends_on:
+      - db
+    ports:
+      - '8080:8080'
+      - '3001:3001'
+    restart: always
+    environment:
+      ENV: development
+      WAIT_HOSTS: mongo:27017
+    networks:
+      default:
+        aliases:
+          - api
+    stdin_open: true
+    tty: true
+  db:
+    image: mongo
+    container_name: teamorg-db
+    volumes:
+      - './db:/data/db'
+    ports:
+      - '27017:27017'
+    networks:
+      default:
+        aliases:
+          - mongo

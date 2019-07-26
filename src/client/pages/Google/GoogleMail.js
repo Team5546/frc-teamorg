@@ -66,7 +66,7 @@ export default class GoogleAdmin extends Component {
     const { missingDocs } = this.state;
     const { members } = missingDocs;
     const membersToSend = members.map(m => ({ ...m, name: `${m.firstName} ${m.lastName}` }));
-    const testing = true;
+    const testing = false;
     if (testing) {
       axios.get('/api/v1/teamMembers/5c171077365ec2c575a46886').then(response => {
         const testMembers = [
