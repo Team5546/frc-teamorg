@@ -16,7 +16,7 @@
   "dependencies": {
     "@babel/polyfill": "^7.2.5",
     "axios": "^0.18.0",
-    "bcrypt": "^3.0.3",
+    "bcrypt": "^5.0.0",
     "camelcase": "^5.0.0",
     "chart.js": "^2.3",
     "coffeescript": "^2.3.2",
