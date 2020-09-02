@@ -27,7 +27,7 @@
     "easy-pie-chart": "^2.1.7",
     "express": "^4.16.4",
     "fs": "^0.0.1-security",
-    "googleapis": "^36.0.0",
+    "googleapis": "^39.1.0",
     "http-proxy-middleware": "^0.18.0",
     "js-base64": "^2.5.0",
     "moment": "^2.23.0",
