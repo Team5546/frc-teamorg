@@ -10,7 +10,7 @@
   "author": "Sandeep Raveesh",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "camelcase": "^5.3.1",
     "chart.js": "^2.8.0",
     "core-js": "^3.1.4",
